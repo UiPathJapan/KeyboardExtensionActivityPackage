@@ -1,0 +1,7 @@
+.vs
+bin
+obj
+*.aps
+*.user
+nuget.exe
+Output

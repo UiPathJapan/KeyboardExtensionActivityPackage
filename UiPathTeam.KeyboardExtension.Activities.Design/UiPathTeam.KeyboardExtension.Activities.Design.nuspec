@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$title$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <iconUrl>http://www.uipath.com/hubfs/Logos/uipath-nuget-logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>UiPath UIAutomation dependency was eliminated.</releaseNotes>
+    <copyright>Copyright © 2018-2020 UiPath</copyright>
+    <tags>Keyboard, Input Method Editor</tags>
+  </metadata>
+  <files>
+    <file src="..\UiPathTeam.KeyboardExtension\bin\Win32\$Configuration$\UiPathTeam.KeyboardExtension32.dll" target="lib\net461"/>
+    <file src="..\UiPathTeam.KeyboardExtension\bin\x64\$Configuration$\UiPathTeam.KeyboardExtension64.dll" target="lib\net461"/>
+    <file src="bin\$Configuration$\ja\UiPathTeam.KeyboardExtension.Activities.resources.dll" target="lib\net461\ja"/>
+    <file src="bin\$Configuration$\ja\UiPathTeam.KeyboardExtension.Activities.Design.resources.dll" target="lib\net461\ja"/>
+  </files>
+</package>
