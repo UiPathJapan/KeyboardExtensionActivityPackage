@@ -82,11 +82,11 @@ UiPath Studio のパッケージを管理ウィンドウの設定タブからユ
 
 * ウィンドウハンドル ～ Win32 ウィンドウハンドル (IntPtr値) を指定してください。このプロパティには、IntPtr値だけでなく、次の値を指定することも可能です。
 
-　　* UiPath.Core.Window 値 ～ アプリケーションを開く　(Open Application) アクティビティのアプリケーションウィンドウ プロパティ等で取得可能な値です。
+	- UiPath.Core.Window 値 ～ アプリケーションを開く　(Open Application) アクティビティのアプリケーションウィンドウ プロパティ等で取得可能な値です。
 
-  * UiPath.Core.Browser 値 ～ ブラウザーを開く (Open Browser) アクティビティの UI ブラウザー プロパティ等で取得可能な値です。
+	- UiPath.Core.Browser 値 ～ ブラウザーを開く (Open Browser) アクティビティの UI ブラウザー プロパティ等で取得可能な値です。
   
-  * UiPath.Core.UiElement 値 ～ 要素を探す (Find Element) アクティビティの 検出した要素 プロパティ等で取得可能な値です。
+	- UiPath.Core.UiElement 値 ～ 要素を探す (Find Element) アクティビティの 検出した要素 プロパティ等で取得可能な値です。
 
 * 結果 ～ Boolean 型変数が指定された場合、ウィンドウハンドル プロパティで指定されたウィンドウに設定処理した結果を返します。設定できた場合、True が返り、設定に失敗した場合、False が返ります。
 
