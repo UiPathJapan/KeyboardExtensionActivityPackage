@@ -5,3 +5,6 @@ obj
 *.user
 nuget.exe
 Output
+.local
+.screenshots
+.settings
