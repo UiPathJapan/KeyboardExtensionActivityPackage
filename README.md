@@ -52,6 +52,10 @@ UiPathTeam.KeyboardExtension.Activities.x.y.z.nupkg
 
 UiPath Studio のパッケージを管理ウィンドウの設定タブからユーザー定義のパッケージソースとしてこの Output ディレクトリを追加すると、UiPath プロジェクトへのパッケージの取り込みが簡単になります。
 
+### ビルド済み NuGet パッケージ
+
+nupkgs ディレクトリにあります。手軽に キーボード拡張アクティビティパッケージ　を試すことができます。
+
 ## アクティビティの使用方法
 
 ### 初期化
