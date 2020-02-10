@@ -1,6 +1,6 @@
-<Activity mc:Ignorable="sap sap2010" x:Class="Main" mva:VisualBasic.Settings="{x:Null}" sap:VirtualizedContainerService.HintSize="1194.8,1615.6" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=mscorlib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uka="clr-namespace:UiPathTeam.KeyboardExtension.Activities;assembly=UiPathTeam.KeyboardExtension.Activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Activity mc:Ignorable="sap sap2010" x:Class="NotepadWithEnglishLayoutEnabled" mva:VisualBasic.Settings="{x:Null}" sap:VirtualizedContainerService.HintSize="1194.8,1575.6" sap2010:WorkflowViewState.IdRef="NotepadWithEnglishLayoutEnabled_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=mscorlib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uka="clr-namespace:UiPathTeam.KeyboardExtension.Activities;assembly=UiPathTeam.KeyboardExtension.Activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <TextExpression.NamespacesForImplementation>
-    <scg:List x:TypeArguments="x:String" Capacity="22">
+    <sco:Collection x:TypeArguments="x:String">
       <x:String>System.Activities</x:String>
       <x:String>System.Activities.Statements</x:String>
       <x:String>System.Activities.Expressions</x:String>
@@ -22,15 +22,15 @@
       <x:String>UiPath.Core</x:String>
       <x:String>UiPath.Core.Activities</x:String>
       <x:String>System.Windows.Markup</x:String>
-      <x:String>Microsoft.VisualBasic.CompilerServices</x:String>
-    </scg:List>
+    </sco:Collection>
   </TextExpression.NamespacesForImplementation>
   <TextExpression.ReferencesForImplementation>
-    <scg:List x:TypeArguments="AssemblyReference" Capacity="16">
+    <sco:Collection x:TypeArguments="AssemblyReference">
       <AssemblyReference>System.Activities</AssemblyReference>
       <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
       <AssemblyReference>mscorlib</AssemblyReference>
       <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
       <AssemblyReference>System</AssemblyReference>
       <AssemblyReference>System.Drawing</AssemblyReference>
       <AssemblyReference>System.Core</AssemblyReference>
@@ -43,9 +43,9 @@
       <AssemblyReference>UiPath.System.Activities</AssemblyReference>
       <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
       <AssemblyReference>System.ServiceModel</AssemblyReference>
-    </scg:List>
+    </sco:Collection>
   </TextExpression.ReferencesForImplementation>
-  <Sequence DisplayName="シーケンス1" sap:VirtualizedContainerService.HintSize="1174.8,1515.6" sap2010:WorkflowViewState.IdRef="Sequence_2">
+  <Sequence DisplayName="シーケンス1" sap:VirtualizedContainerService.HintSize="1174.8,1515.6" sap2010:WorkflowViewState.IdRef="Sequence_4">
     <Sequence.Variables>
       <Variable x:TypeArguments="ui:Window" Name="wnd" />
       <Variable x:TypeArguments="x:String" Name="response" />
@@ -63,14 +63,14 @@
           <ActivityAction.Argument>
             <DelegateInArgument x:TypeArguments="x:Object" Name="ContextTarget" />
           </ActivityAction.Argument>
-          <Sequence DisplayName="シーケンス2" sap:VirtualizedContainerService.HintSize="1098.8,1191.6" sap2010:WorkflowViewState.IdRef="Sequence_1">
+          <Sequence DisplayName="シーケンス2" sap:VirtualizedContainerService.HintSize="1098.8,1191.6" sap2010:WorkflowViewState.IdRef="Sequence_3">
             <sap:WorkflowViewStateService.ViewState>
               <scg:Dictionary x:TypeArguments="x:String, x:Object">
                 <x:Boolean x:Key="IsExpanded">True</x:Boolean>
               </scg:Dictionary>
             </sap:WorkflowViewStateService.ViewState>
-            <ui:MessageBox Caption="{x:Null}" ChosenButton="{x:Null}" Buttons="Ok" DisplayName="メッセージ ボックス" sap:VirtualizedContainerService.HintSize="1056.8,59.2" sap2010:WorkflowViewState.IdRef="MessageBox_1" Text="[&quot;メモ帳のIMEをオンにして日本語が入力できる状態にしてください。&quot;+vbCrLf+&quot;このワークフローは、IMEをオフにしてテキストを書き込み、&quot;+vbCrLf+&quot;そのあとIMEを再び元の状態に戻します。&quot;+vbCrLf+&quot;OKをクリックすると開始します。&quot;]" TopMost="True" />
-            <uka:Configure BlockKeyboardInput="False" BlockMouseInput="False" DisableInputMethodEditor="True" DisplayName="入力設定を行う" ForceKeyboardLayout="False" sap:VirtualizedContainerService.HintSize="1056.8,22" sap2010:WorkflowViewState.IdRef="Configure_1" PreferredKeyboardLayout="1033" ToggleSequence="LCONTROL+LSHIFT+RSHIFT" />
+            <ui:MessageBox Caption="{x:Null}" ChosenButton="{x:Null}" Buttons="Ok" DisplayName="メッセージ ボックス" sap:VirtualizedContainerService.HintSize="1056.8,59.2" sap2010:WorkflowViewState.IdRef="MessageBox_1" Text="[&quot;メモ帳のIMEをオンにして日本語が入力できる状態にしてください。&quot;+vbCrLf+&quot;このワークフローは、キーボードレイアウトを英語レイアウトにしてテキストを書き込み、&quot;+vbCrLf+&quot;そのあとキーボードを再び元の状態に戻します。&quot;+vbCrLf+&quot;OKをクリックすると開始します。&quot;+vbCrLf+vbCrLf+&quot;(なお、予め英語レイアウトがインストールされている必要があります)&quot;]" TopMost="True" />
+            <uka:Configure BlockKeyboardInput="False" BlockMouseInput="False" DisableInputMethodEditor="False" DisplayName="入力設定を行う" ForceKeyboardLayout="True" sap:VirtualizedContainerService.HintSize="1056.8,22" sap2010:WorkflowViewState.IdRef="Configure_1" PreferredKeyboardLayout="1033" ToggleSequence="LCONTROL+LSHIFT+RSHIFT" />
             <uka:Apply Result="{x:Null}" DisplayName="入力設定を適用" sap:VirtualizedContainerService.HintSize="1056.8,22" sap2010:WorkflowViewState.IdRef="Apply_1" WindowHandle="[wnd]" />
             <ui:TypeInto ClickBeforeTyping="{x:Null}" DelayBefore="{x:Null}" DelayBetweenKeys="{x:Null}" DelayMS="{x:Null}" EmptyField="{x:Null}" SendWindowMessages="{x:Null}" SimulateType="{x:Null}" Activate="True" DisplayName="文字を入力" sap:VirtualizedContainerService.HintSize="1056.8,96" sap2010:WorkflowViewState.IdRef="TypeInto_1" Text="It is a dark time for the Rebellion.[k(enter)]Although the Death Star has been destroyed, Imperial troops have driven the Rebel forces from their hidden base and pursued them across the galaxy.[k(enter)]Evading the dreaded Imperial Starfleet, a group of freedom fighters led by Luke Skywalker has established a new secret base on the remote ice world of Hoth.[k(enter)]The evil lord Darth Vader, obsessed with finding young Skywalker, has dispatched thousands of remote probes into the far reaches of space…[k(enter)]">
               <ui:TypeInto.Target>
@@ -131,7 +131,7 @@
                 </sap2010:ViewStateManager>
               </sap2010:WorkflowViewState.ViewStateManager>
             </Delay>
-            <ui:MessageBox Caption="{x:Null}" Buttons="OkCancel" ChosenButton="[response]" DisplayName="メッセージ ボックス" sap:VirtualizedContainerService.HintSize="1056.8,59.2" sap2010:WorkflowViewState.IdRef="MessageBox_2" Text="[&quot;メモ帳のIMEが元の状態(オン)に戻っていることを確認してください。&quot;+vbCrLf+&quot;OKをクリックするとメモ帳を閉じてワークフローを終了します。&quot;+vbCrLf+&quot;キャンセルをクリックするとそのままワークフローを終了します。&quot;]" TopMost="True" />
+            <ui:MessageBox Caption="{x:Null}" Buttons="OkCancel" ChosenButton="[response]" DisplayName="メッセージ ボックス" sap:VirtualizedContainerService.HintSize="1056.8,59.2" sap2010:WorkflowViewState.IdRef="MessageBox_2" Text="[&quot;メモ帳のキーボードが元の状態に戻っていることを確認してください。&quot;+vbCrLf+&quot;OKをクリックするとメモ帳を閉じてワークフローを終了します。&quot;+vbCrLf+&quot;キャンセルをクリックするとそのままワークフローを終了します。&quot;]" TopMost="True" />
             <uka:Configure BlockKeyboardInput="True" BlockMouseInput="True" DisableInputMethodEditor="False" DisplayName="入力設定を行う" ForceKeyboardLayout="False" sap:VirtualizedContainerService.HintSize="1056.8,22" sap2010:WorkflowViewState.IdRef="Configure_2" PreferredKeyboardLayout="1033" ToggleSequence="LCONTROL+LSHIFT+RSHIFT" />
             <If Condition="[response.ToUpperInvariant = &quot;OK&quot;]" DisplayName="条件分岐" sap:VirtualizedContainerService.HintSize="1056.8,455.2" sap2010:WorkflowViewState.IdRef="If_1">
               <If.Then>
@@ -165,7 +165,7 @@
                       </ui:Target>
                     </ui:Click.Target>
                   </ui:Click>
-                  <Sequence DisplayName="シーケンス3" sap:VirtualizedContainerService.HintSize="376,259.6" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                  <Sequence DisplayName="シーケンス3" sap:VirtualizedContainerService.HintSize="376,259.6" sap2010:WorkflowViewState.IdRef="Sequence_2">
                     <sap:WorkflowViewStateService.ViewState>
                       <scg:Dictionary x:TypeArguments="x:String, x:Object">
                         <x:Boolean x:Key="IsExpanded">True</x:Boolean>

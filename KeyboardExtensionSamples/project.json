@@ -1,11 +1,11 @@
 {
   "name": "KeyboardExtensionSamples",
   "description": "キーボード拡張アクティビティパッケージのサンプル集\r\nSample workflows for Keyboard Extension activity package.",
-  "main": "NotepadWithImeDisabled.xaml",
+  "main": "AllTests.xaml",
   "dependencies": {
     "UiPath.System.Activities": "[19.10.1]",
     "UiPath.UIAutomation.Activities": "[19.11.1]",
-    "UiPathTeam.KeyboardExtension.Activities": "[2.1.1]"
+    "UiPathTeam.KeyboardExtension.Activities": "[2.2.1]"
   },
   "webServices": [],
   "schemaVersion": "4.0",
