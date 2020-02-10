@@ -150,6 +150,7 @@ namespace UiPathTeam
             LANGID m_LangId;
             LONG m_KeyboardOpenClose;
             LONG m_InputModeConversion;
+            DWORD m_dwValidity;
 
         private:
 
@@ -208,3 +209,8 @@ namespace UiPathTeam
         };
     }
 }
+
+#define VALIDITY_LANGID     (1UL<<0)
+#define VALIDITY_OPENCLOSE  (1UL<<1)
+#define VALIDITY_CONVERSION (1UL<<2)
+#define VALIDITY_ALL        ((1UL<<3)-1)

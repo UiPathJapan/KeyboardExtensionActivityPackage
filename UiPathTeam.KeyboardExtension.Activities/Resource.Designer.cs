@@ -205,6 +205,96 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
+        ///   Receives the ConversionMode compartment value. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateConversionModeDescription {
+            get {
+                return ResourceManager.GetString("GetStateConversionModeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   ConversionMode に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateConversionModeDisplayName {
+            get {
+                return ResourceManager.GetString("GetStateConversionModeDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Retrieves the keyboard layout and the compartment values set in the designated window. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateDescription {
+            get {
+                return ResourceManager.GetString("GetStateDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Get Keyboard State に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateDisplayName {
+            get {
+                return ResourceManager.GetString("GetStateDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Receives the language identifier of the keyboard layout. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateKeyboardLayoutDescription {
+            get {
+                return ResourceManager.GetString("GetStateKeyboardLayoutDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Keyboard Layout に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateKeyboardLayoutDisplayName {
+            get {
+                return ResourceManager.GetString("GetStateKeyboardLayoutDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Receives the KeyboardOpenClose compartment value. True when IME is turned on. Otherwise, False. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateKeyboardOpenCloseDescription {
+            get {
+                return ResourceManager.GetString("GetStateKeyboardOpenCloseDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   KeyboardOpenClose に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateKeyboardOpenCloseDisplayName {
+            get {
+                return ResourceManager.GetString("GetStateKeyboardOpenCloseDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Win32 Handle of a window to retrieve the keyboard state from. Window, Browser, and UiElement are also acceptble. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateWindowHandleDescription {
+            get {
+                return ResourceManager.GetString("GetStateWindowHandleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Window Handle に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GetStateWindowHandleDisplayName {
+            get {
+                return ResourceManager.GetString("GetStateWindowHandleDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Initializes the keyboard extension activity package. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string InitializeDescription {

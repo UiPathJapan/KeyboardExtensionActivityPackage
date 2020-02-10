@@ -45,6 +45,7 @@
     <Compile Include="Apply.cs" />
     <Compile Include="Bridge.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="GetState.cs" />
     <Compile Include="Initialize.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

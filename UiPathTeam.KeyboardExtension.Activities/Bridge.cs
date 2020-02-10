@@ -56,6 +56,14 @@ namespace UiPathTeam.KeyboardExtension.Activities
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate uint UnmanagedGetState(IntPtr hwnd);
+
+        public static uint GetState(IntPtr hwnd)
+        {
+            return ((UnmanagedGetState)GetDelegate("GetState", typeof(UnmanagedGetState)))(hwnd);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate int UnmanagedSetBlockInput(int flags);
 
         public static int SetBlockInput(int flags)

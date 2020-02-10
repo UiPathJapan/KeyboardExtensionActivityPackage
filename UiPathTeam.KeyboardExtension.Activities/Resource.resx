@@ -165,6 +165,36 @@
   <data name="ForceKeyboardLayoutDisplayName" xml:space="preserve">
     <value>Force Keyboard Layout</value>
   </data>
+  <data name="GetStateConversionModeDescription" xml:space="preserve">
+    <value>Receives the ConversionMode compartment value.</value>
+  </data>
+  <data name="GetStateConversionModeDisplayName" xml:space="preserve">
+    <value>ConversionMode</value>
+  </data>
+  <data name="GetStateDescription" xml:space="preserve">
+    <value>Retrieves the keyboard layout and the compartment values set in the designated window.</value>
+  </data>
+  <data name="GetStateDisplayName" xml:space="preserve">
+    <value>Get Keyboard State</value>
+  </data>
+  <data name="GetStateKeyboardLayoutDescription" xml:space="preserve">
+    <value>Receives the language identifier of the keyboard layout.</value>
+  </data>
+  <data name="GetStateKeyboardLayoutDisplayName" xml:space="preserve">
+    <value>Keyboard Layout</value>
+  </data>
+  <data name="GetStateKeyboardOpenCloseDescription" xml:space="preserve">
+    <value>Receives the KeyboardOpenClose compartment value. True when IME is turned on. Otherwise, False.</value>
+  </data>
+  <data name="GetStateKeyboardOpenCloseDisplayName" xml:space="preserve">
+    <value>KeyboardOpenClose</value>
+  </data>
+  <data name="GetStateWindowHandleDescription" xml:space="preserve">
+    <value>Win32 Handle of a window to retrieve the keyboard state from. Window, Browser, and UiElement are also acceptble.</value>
+  </data>
+  <data name="GetStateWindowHandleDisplayName" xml:space="preserve">
+    <value>Window Handle</value>
+  </data>
   <data name="InitializeDescription" xml:space="preserve">
     <value>Initializes the keyboard extension activity package.</value>
   </data>

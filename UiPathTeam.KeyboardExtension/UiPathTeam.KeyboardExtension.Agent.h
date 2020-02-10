@@ -136,6 +136,47 @@ namespace UiPathTeam
                     DBGPUT(L"Ended.");
                     return;
                 }
+                else if (pCWPS->wParam == AGENT_GETSTATE)
+                {
+                    DBGFNC(L"UiPathTeam::KeyboardExtension::Agent::GETSTATE");
+                    DBGPUT(L"Started.");
+                    if (m_bInitialized)
+                    {
+                        m_pAgentIpc->m_LangId = 0;
+                        m_pAgentIpc->m_KeyboardOpenClose = 0;
+                        m_pAgentIpc->m_InputModeConversion = 0;
+                        m_pAgentIpc->m_dwValidity = 0;
+                        if (m_pTfCompartmentKeyboardOpenClose)
+                        {
+                            if (GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_pAgentIpc->m_KeyboardOpenClose) == S_OK)
+                            {
+                                m_pAgentIpc->m_dwValidity |= VALIDITY_OPENCLOSE;
+                            }
+                        }
+                        if (m_pTfCompartmentInputModeConversion)
+                        {
+                            if (GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_pAgentIpc->m_InputModeConversion) == S_OK)
+                            {
+                                m_pAgentIpc->m_dwValidity |= VALIDITY_CONVERSION;
+                            }
+                        }
+                        if (m_pInputProcessorProfiles)
+                        {
+                            HRESULT hr = m_pInputProcessorProfiles->GetCurrentLanguage(&m_pAgentIpc->m_LangId);
+                            if (hr == S_OK)
+                            {
+                                DBGPUT(L"TfInputProcessorProfiles::GetCurrentLanguage: %04x", m_pAgentIpc->m_LangId);
+                                m_pAgentIpc->m_dwValidity |= VALIDITY_LANGID;
+                            }
+                            else
+                            {
+                                Debug::Put(L"TfInputProcessorProfiles::GetCurrentLanguage: Failed. error=%08lx", hr);
+                            }
+                        }
+                    }
+                    DBGPUT(L"Ended.");
+                    return;
+                }
             }
             if (m_bInitialized)
             {

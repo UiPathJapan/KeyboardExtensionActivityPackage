@@ -129,6 +129,11 @@ LRESULT CALLBACK Server::WindowProc(
             }
             DBGPUT(L"WM_APP_SET_KBD_LAYOUT: Ended. return=%04lx", lRet);
             return lRet;
+        case WM_APP_GET_CURRENT_STATE:
+            DBGPUT(L"WM_APP_GET_CURRENT_STATE: Started.");
+            lRet = pThis->GetState(reinterpret_cast<HWND>(wParam));
+            DBGPUT(L"WM_APP_GET_CURRENT_STATE: Ended. return=%08lx", lRet);
+            return lRet;
         default:
             break;
         }
@@ -295,6 +300,49 @@ DWORD Server::SetFlags(HWND hwnd, DWORD dwFlags)
     }
     DBGPUT(L"Ended. return=%08lx", dwFlags0);
     return dwFlags0;
+}
+
+
+DWORD Server::GetState(HWND hwnd)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Server::GetState");
+    DBGPUT(L"Started. hwnd=%p", hwnd);
+    DWORD dwProcessId = 0;
+    DWORD dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
+    std::map<DWORD, AgentHook*>::iterator iter = m_AgentMap.find(dwThreadId);
+    bool hooked = iter != m_AgentMap.end();
+    if (!hooked)
+    {
+        DBGPUT(L"TID=%lu PID=%lu", dwThreadId, dwProcessId);
+        if (!InstallCallWndProcHook(dwThreadId))
+        {
+            DBGPUT(L"Ended. return=0");
+            return 0;
+        }
+        iter = m_AgentMap.find(dwThreadId);
+        if (iter == m_AgentMap.end())
+        {
+            DBGPUT(L"Ended. return=0");
+            return 0;
+        }
+        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_INITIALIZE, 0, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
+    }
+    else
+    {
+        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_GETSTATE, 0, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
+    }
+    AgentIpcPtr& ptr = iter->second->m_pIpc;
+    DWORD dwRet
+        = ((static_cast<DWORD>(ptr->m_LangId) & 0xffff) << 0)
+        | ((static_cast<DWORD>(ptr->m_InputModeConversion) & 0x7fff) << 16)
+        | ((static_cast<DWORD>(ptr->m_KeyboardOpenClose) & 1) << 31);
+    if (!hooked)
+    {
+        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_UNINITIALIZE, 0, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
+        UninstallCallWndProcHook(iter);
+    }
+    DBGPUT(L"Ended. return=%08lx", dwRet);
+    return dwRet;
 }
 
 

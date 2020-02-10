@@ -130,9 +130,17 @@ void Agent::Initialize()
         return;
     }
 
-    GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_pAgentIpc->m_KeyboardOpenClose);
+    m_pAgentIpc->m_dwValidity = 0;
 
-    GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_pAgentIpc->m_InputModeConversion);
+    if (GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_pAgentIpc->m_KeyboardOpenClose) == S_OK)
+    {
+        m_pAgentIpc->m_dwValidity |= VALIDITY_OPENCLOSE;
+    }
+
+    if (GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_pAgentIpc->m_InputModeConversion) == S_OK)
+    {
+        m_pAgentIpc->m_dwValidity |= VALIDITY_CONVERSION;
+    }
 
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfiles, (void**)&m_pInputProcessorProfiles);
     if (hr == S_OK)
@@ -142,6 +150,7 @@ void Agent::Initialize()
         if (hr == S_OK)
         {
             DBGPUT(L"TfInputProcessorProfiles::GetCurrentLanguage: %04x", m_pAgentIpc->m_LangId);
+            m_pAgentIpc->m_dwValidity |= VALIDITY_LANGID;
         }
         else
         {

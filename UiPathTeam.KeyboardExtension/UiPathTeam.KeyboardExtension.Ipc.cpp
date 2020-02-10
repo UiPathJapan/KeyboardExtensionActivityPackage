@@ -145,4 +145,5 @@ void AgentIpc::Clear(DWORD dwThreadId, DWORD dwFlags)
     m_LangId = 0;
     m_KeyboardOpenClose = 0;
     m_InputModeConversion = 0;
+    m_dwValidity = 0;
 }

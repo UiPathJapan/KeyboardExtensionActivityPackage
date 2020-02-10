@@ -550,3 +550,30 @@ void Client::SetToggleSequence(PCWSTR psz)
     m_pIpc->m_ToggleSequece.Parse(psz);
     DBGPUT(L"Ended.");
 }
+
+
+DWORD Client::GetState(HWND hwnd)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::GetState");
+    DBGPUT(L"Started. hwnd=%p", hwnd);
+    LRESULT lRet = 0;
+    if (hwnd != NULL)
+    {
+        DWORD dwProcessId = 0;
+        DWORD dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
+        DBGPUT(L"TID=%lu PID=%lu", dwThreadId, dwProcessId);
+        int bitness = Platform::GetProcessBitness(dwProcessId);
+        if (bitness == 64)
+        {
+            DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_GET_CURRENT_STATE,%p)", m_pIpc->m_hWnd64, hwnd);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_GET_CURRENT_STATE, reinterpret_cast<WPARAM>(hwnd), 0);
+        }
+        else if (bitness == 32)
+        {
+            DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_GET_CURRENT_STATE,%p)", m_pIpc->m_hWnd32, hwnd);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_GET_CURRENT_STATE, reinterpret_cast<WPARAM>(hwnd), 0);
+        }
+    }
+    DBGPUT(L"Ended. return=%08lx", lRet);
+    return static_cast<DWORD>(lRet);
+}

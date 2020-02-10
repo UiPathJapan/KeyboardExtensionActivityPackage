@@ -165,6 +165,36 @@
   <data name="ForceKeyboardLayoutDisplayName" xml:space="preserve">
     <value>指定キーボードレイアウトに強制変更</value>
   </data>
+  <data name="GetStateConversionModeDescription" xml:space="preserve">
+    <value>変換モード コンパートメント値を受け取ります。</value>
+  </data>
+  <data name="GetStateConversionModeDisplayName" xml:space="preserve">
+    <value>変換モード</value>
+  </data>
+  <data name="GetStateDescription" xml:space="preserve">
+    <value>指定のウィンドウに設定されているキーボードレイアウトとコンパートメント値を取得します。</value>
+  </data>
+  <data name="GetStateDisplayName" xml:space="preserve">
+    <value>キーボードの状態を取得</value>
+  </data>
+  <data name="GetStateKeyboardLayoutDescription" xml:space="preserve">
+    <value>キーボードレイアウトを表す言語 ID を受け取ります。</value>
+  </data>
+  <data name="GetStateKeyboardLayoutDisplayName" xml:space="preserve">
+    <value>キーボードレイアウト</value>
+  </data>
+  <data name="GetStateKeyboardOpenCloseDescription" xml:space="preserve">
+    <value>キーボード OpenClose コンパートメント値を受け取ります。IME がオンの時、True を返し、その他の時、False を返します。</value>
+  </data>
+  <data name="GetStateKeyboardOpenCloseDisplayName" xml:space="preserve">
+    <value>キーボード OpenClose</value>
+  </data>
+  <data name="GetStateWindowHandleDescription" xml:space="preserve">
+    <value>キーボードの状態を取得するウィンドウの Win32 ハンドルです。Window、Browser、そして UiElement も指定可能です。</value>
+  </data>
+  <data name="GetStateWindowHandleDisplayName" xml:space="preserve">
+    <value>ウィンドウハンドル</value>
+  </data>
   <data name="InitializeDescription" xml:space="preserve">
     <value>キーボード拡張機能アクティビティパッケージを初期化します。(Initialize)</value>
   </data>

@@ -27,6 +27,7 @@ namespace UiPathTeam
             LANGID GetPreferredKeyboardLayout();
             LANGID SetPreferredKeyboardLayout(LANGID);
             void SetToggleSequence(PCWSTR);
+            DWORD GetState(HWND);
 
             static Client* m_pInstance;
 

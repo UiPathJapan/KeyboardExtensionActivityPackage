@@ -8,7 +8,7 @@ namespace UiPathTeam.KeyboardExtension.Activities
     public class Configure : CodeActivity
     {
         private static readonly string DEFAULT_TOGGLE_SEQUENCE = "LCONTROL+LSHIFT+RSHIFT";
-        private const ushort DEFAULT_PREFERRED_KEYBOARD_LAYOUT = 0x409; // ENGLISH/US
+        private const int DEFAULT_PREFERRED_KEYBOARD_LAYOUT = 0x409; // ENGLISH/US
 
         [LocalizedCategory(nameof(Resource.InputCategory))]
         [LocalizedDisplayName(nameof(Resource.BlockKeyboardInputDisplayName))]
@@ -38,7 +38,7 @@ namespace UiPathTeam.KeyboardExtension.Activities
         [LocalizedCategory(nameof(Resource.InputCategory))]
         [LocalizedDisplayName(nameof(Resource.PreferredKeyboardLayoutDisplayName))]
         [LocalizedDescription(nameof(Resource.PreferredKeyboardLayoutDescription))]
-        public InArgument<ushort> PreferredKeyboardLayout { get; set; }
+        public InArgument<int> PreferredKeyboardLayout { get; set; }
 
         public Configure()
         {
@@ -47,7 +47,7 @@ namespace UiPathTeam.KeyboardExtension.Activities
             BlockKeyboardInput = false;
             BlockMouseInput = false;
             ToggleSequence = new InArgument<string>(DEFAULT_TOGGLE_SEQUENCE);
-            PreferredKeyboardLayout = new InArgument<ushort>(DEFAULT_PREFERRED_KEYBOARD_LAYOUT);
+            PreferredKeyboardLayout = new InArgument<int>(DEFAULT_PREFERRED_KEYBOARD_LAYOUT);
         }
 
         protected override void Execute(CodeActivityContext context)
@@ -85,7 +85,7 @@ namespace UiPathTeam.KeyboardExtension.Activities
             {
                 if (PreferredKeyboardLayout != null)
                 {
-                    langId = PreferredKeyboardLayout.Get(context);
+                    langId = (ushort)PreferredKeyboardLayout.Get(context);
                 }
                 if (langId == 0)
                 {

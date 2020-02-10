@@ -14,6 +14,7 @@ namespace UiPathTeam.KeyboardExtension.Activities.Design
             builder.AddCustomAttributes(typeof(Configure), category);
             builder.AddCustomAttributes(typeof(Restore), category);
             builder.AddCustomAttributes(typeof(Apply), category);
+            builder.AddCustomAttributes(typeof(GetState), category);
             MetadataStore.AddAttributeTable(builder.CreateTable());
         }
     }
