@@ -3,7 +3,9 @@
 #include "UiPathTeam.KeyboardExtension.Ipc.h"
 
 
-#define MAPPING_NAME L"Local\\28CC044A-8F75-43F8-91C6-BF2FCBC0E848@v7"
+#define SERVER_MAPPING_NAME     L"Local\\S28CC044A-8F75-43F8-91C6-BF2FCBC0E848@v7"
+#define DESKTOP_MAPPING_NAME    L"Local\\D28CC044A-8F75-43F8-91C6-BF2FCBC0E848@v7"
+#define AGENT_MAPPING_NAME      L"Local\\A28CC044A-8F75-43F8-91C6-BF2FCBC0E848@v7"
 
 
 using namespace UiPathTeam;
@@ -28,11 +30,12 @@ static void CloseHandle2(HANDLE& h)
 }
 
 
-Ipc* Ipc::Map(HANDLE& hMapping)
+template<class T>
+static T* Map(HANDLE& hMapping, PCWSTR pszName)
 {
     LARGE_INTEGER size;
-    size.QuadPart = sizeof(Ipc);
-    hMapping = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, size.HighPart, size.LowPart, MAPPING_NAME);
+    size.QuadPart = sizeof(T);
+    hMapping = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, size.HighPart, size.LowPart, pszName);
     if (hMapping != NULL)
     {
         DBGPUT(L"CreateFileMapping: return=%p", hMapping);
@@ -44,7 +47,7 @@ Ipc* Ipc::Map(HANDLE& hMapping)
         return NULL;
     }
 
-    Ipc* pBlock = (Ipc*)MapViewOfFile(hMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    T* pBlock = (T*)MapViewOfFile(hMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (pBlock != NULL)
     {
         DBGPUT(L"MapViewOfFile(%p): return=%p", hMapping, pBlock);
@@ -60,17 +63,86 @@ Ipc* Ipc::Map(HANDLE& hMapping)
 }
 
 
-void Ipc::Unmap(HANDLE& hMapping)
+static void Unmap(void* pBlock, HANDLE& hMapping)
 {
-    if (UnmapViewOfFile(this))
+    if (UnmapViewOfFile(pBlock))
     {
-        DBGPUT(L"UnmapViewOfFile(%p)", this);
+        DBGPUT(L"UnmapViewOfFile(%p)", pBlock);
     }
     else
     {
         DWORD dwError = GetLastError();
-        Debug::Put(L"UnmapViewOfFile(%p): Failed. error=%lu", this, dwError);
+        Debug::Put(L"UnmapViewOfFile(%p): Failed. error=%lu", pBlock, dwError);
     }
 
     CloseHandle2(hMapping);
+}
+
+
+ServerIpc* ServerIpc::Map(HANDLE& hMapping)
+{
+    return ::Map<ServerIpc>(hMapping, SERVER_MAPPING_NAME);
+}
+
+
+void ServerIpc::Unmap(HANDLE& hMapping)
+{
+    ::Unmap(this, hMapping);
+}
+
+
+void ServerIpc::Clear()
+{
+    m_dwProcessId32 = 0;
+    m_dwProcessId64 = 0;
+    m_hWnd32 = 0;
+    m_hWnd64 = 0;
+    m_ToggleSequece.Clear();
+    m_LastProcessed = 0;
+}
+
+
+DesktopIpc* DesktopIpc::Map(HANDLE& hMapping)
+{
+    return ::Map<DesktopIpc>(hMapping, DESKTOP_MAPPING_NAME);
+}
+
+
+void DesktopIpc::Unmap(HANDLE& hMapping)
+{
+    ::Unmap(this, hMapping);
+}
+
+
+void DesktopIpc::Clear()
+{
+    m_WM_AGENT_WAKEUP = RegisterWindowMessageW(L"WM_AGENT_WAKEUP");
+    m_Paused = 0;
+    m_dwFlags = 0;
+    m_KeyboardLayoutSetting.m_LangIds = 0;
+    m_LastLangId = 0;
+}
+
+
+AgentIpc* AgentIpc::Map(HANDLE& hMapping, DWORD dwThreadId)
+{
+    WCHAR szName[MAX_PATH] = { 0 };
+    _snwprintf_s(szName, _TRUNCATE, L"%s@%lu", AGENT_MAPPING_NAME, dwThreadId);
+    return ::Map<AgentIpc>(hMapping, szName);
+}
+
+
+void AgentIpc::Unmap(HANDLE& hMapping)
+{
+    ::Unmap(this, hMapping);
+}
+
+
+void AgentIpc::Clear(DWORD dwThreadId, DWORD dwFlags)
+{
+    m_dwThreadId = dwThreadId;
+    m_dwFlags = dwFlags;
+    m_LangId = 0;
+    m_KeyboardOpenClose = 0;
+    m_InputModeConversion = 0;
 }

@@ -14,7 +14,7 @@ HRESULT STDMETHODCALLTYPE Agent::OnChange(
     {
         DBGFNC(L"UiPathTeam::KeyboardExtension::Agent::OnChange(KEYBOARD_OPENCLOSE)");
         DBGPUT(L"Started.");
-        GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_KeyboardOpenClose);
+        GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_pAgentIpc->m_KeyboardOpenClose);
         DBGPUT(L"Ended.");
         return S_OK;
     }
@@ -22,7 +22,7 @@ HRESULT STDMETHODCALLTYPE Agent::OnChange(
     {
         DBGFNC(L"UiPathTeam::KeyboardExtension::Agent::OnChange(KEYBOARD_INPUTMODE_CONVERSION)");
         DBGPUT(L"Started.");
-        GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_InputModeConversion);
+        GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_pAgentIpc->m_InputModeConversion);
         DBGPUT(L"Ended.");
         return S_OK;
     }

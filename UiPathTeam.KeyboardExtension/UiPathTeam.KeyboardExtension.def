@@ -2,8 +2,12 @@ EXPORTS
 	RunServer
 	StartServer
 	StopServer
+	GetBlockInput
+	SetBlockInput
+	GetPreferredKeyboardLayout
+	SetPreferredKeyboardLayout
+	GetFlags
 	SetFlags
 	SetToggleSequence
-	SetPreferredKeyboardLayout
 	StartAgent
 	StopAgent

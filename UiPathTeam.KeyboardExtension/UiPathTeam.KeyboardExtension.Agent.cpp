@@ -16,21 +16,17 @@ Agent::Agent()
     : m_ulRefCount(1)
     , m_bReleasePending(false)
     , m_bOnCall(false)
-    , m_bEnabled(false)
     , m_bInitialized(false)
-    , m_hIpcMapping(NULL)
-    , m_pIpcBlock(NULL)
+    , m_pAgentIpc()
+    , m_pDesktopIpc()
     , m_pTfThreadMgr(NULL)
     , m_TfClientId(TF_CLIENTID_NULL)
     , m_pTfCompartmentMgr(NULL)
     , m_pTfCompartmentKeyboardOpenClose(NULL)
     , m_pTfCompartmentInputModeConversion(NULL)
     , m_CompartmentEventSinkCookieMap()
-    , m_KeyboardOpenClose(0)
-    , m_InputModeConversion(0)
     , m_pInputProcessorProfiles(NULL)
     , m_dwLanguageProfileNotifySinkCookie(TF_INVALID_COOKIE)
-    , m_LangId(0)
     , m_JaState(STATE_COMPARTMENT_NONE)
     , m_KoState(STATE_COMPARTMENT_NONE)
     , m_ZhTwState(STATE_COMPARTMENT_NONE)
@@ -41,7 +37,13 @@ Agent::Agent()
 {
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Agent::ctor");
     DBGPUT(L"Started.");
-    m_pIpcBlock = Ipc::Map(m_hIpcMapping);
+    if (m_pAgentIpc.Map(GetCurrentThreadId()))
+    {
+        if (!m_pDesktopIpc.Map())
+        {
+            m_pAgentIpc.Unmap();
+        }
+    }
     DBGPUT(L"Ended.");
 }
 
@@ -54,10 +56,8 @@ Agent::~Agent()
     {
         Uninitialize();
     }
-    if (m_pIpcBlock != NULL)
-    {
-        m_pIpcBlock->Unmap(m_hIpcMapping);
-    }
+    m_pDesktopIpc.Unmap();
+    m_pAgentIpc.Unmap();
     DBGPUT(L"Ended.");
 }
 
@@ -73,7 +73,7 @@ void Agent::Initialize()
         return;
     }
 
-    if (m_pIpcBlock == NULL)
+    if (!m_pAgentIpc)
     {
         DBGPUT(L"Ended. IPC block unavailable.");
         return;
@@ -130,18 +130,18 @@ void Agent::Initialize()
         return;
     }
 
-    GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_KeyboardOpenClose);
+    GetCompartmentLong(m_pTfCompartmentKeyboardOpenClose, m_pAgentIpc->m_KeyboardOpenClose);
 
-    GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_InputModeConversion);
+    GetCompartmentLong(m_pTfCompartmentInputModeConversion, m_pAgentIpc->m_InputModeConversion);
 
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, NULL, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfiles, (void**)&m_pInputProcessorProfiles);
     if (hr == S_OK)
     {
         DBGPUT(L"CoCreateInstance(TF_InputProcessorProfiles): %p", m_pInputProcessorProfiles);
-        hr = m_pInputProcessorProfiles->GetCurrentLanguage(&m_LangId);
+        hr = m_pInputProcessorProfiles->GetCurrentLanguage(&m_pAgentIpc->m_LangId);
         if (hr == S_OK)
         {
-            DBGPUT(L"TfInputProcessorProfiles::GetCurrentLanguage: %04x", m_LangId);
+            DBGPUT(L"TfInputProcessorProfiles::GetCurrentLanguage: %04x", m_pAgentIpc->m_LangId);
         }
         else
         {
@@ -190,7 +190,7 @@ void Agent::Uninitialize()
 
     m_bInitialized = false;
 
-    if (m_pIpcBlock == NULL)
+    if (!m_pAgentIpc)
     {
         DBGPUT(L"Ended. IPC block unavailable.");
         return;

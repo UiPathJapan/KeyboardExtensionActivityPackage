@@ -2,7 +2,6 @@
 #include "Debug.h"
 #include "Platform.h"
 #include "KnownFolderPath.h"
-#include "LowIntegrityImpersonator.h"
 #include "UiPathTeam.KeyboardExtension.h"
 #include "UiPathTeam.KeyboardExtension.Client.h"
 
@@ -16,21 +15,15 @@ Client* Client::m_pInstance = NULL;
 
 Client::Client(HMODULE hModule)
     : m_hModule(hModule)
-    , m_hIpcMapping(NULL)
-    , m_pIpcBlock(NULL)
+    , m_pIpc()
 {
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Client::ctor");
     DBGPUT(L"Started.");
+    if (!m_pIpc.Map())
     {
-        // Temporarily impersonate the low integrity so that even Internet Explorer in the protected mode can map the IPC block.
-        LowIntegrityImpersonator x;
-        m_pIpcBlock = Ipc::Map(m_hIpcMapping);
+        throw std::runtime_error("Client-Server IPC block unavailable.");
     }
-    if (m_pIpcBlock == NULL)
-    {
-        throw std::runtime_error("IPC block unavailable.");
-    }
-    m_pIpcBlock->Clear();
+    m_pIpc->Clear();
     InterlockedCompareExchangePointer(reinterpret_cast<void**>(&m_pInstance), this, NULL);
     DBGPUT(L"Ended.");
 }
@@ -41,7 +34,7 @@ Client::~Client()
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Client::dtor");
     DBGPUT(L"Started.");
     InterlockedCompareExchangePointer(reinterpret_cast<void**>(&m_pInstance), NULL, this);
-    m_pIpcBlock->Unmap(m_hIpcMapping);
+    m_pIpc.Unmap();
     DBGPUT(L"Ended.");
 }
 
@@ -51,46 +44,52 @@ bool Client::StartServer()
 {
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Client::StartServer");
 
-    if (m_pIpcBlock->m_dwProcessId32 != 0)
+    if (!m_pIpc)
     {
-        HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, m_pIpcBlock->m_dwProcessId32);
+        Debug::Put(L"IPC block unavailable.");
+        return false;
+    }
+
+    if (m_pIpc->m_dwProcessId32 != 0)
+    {
+        HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, m_pIpc->m_dwProcessId32);
         if (h != NULL)
         {
             CloseHandle(h);
-            DBGPUT(L"Server32: PID=%lu", m_pIpcBlock->m_dwProcessId32);
+            DBGPUT(L"Server32: PID=%lu", m_pIpc->m_dwProcessId32);
         }
         else
         {
             DWORD dwError = GetLastError();
-            DBGPUT(L"OpenProcess(%lu): Failed. error=%lu", m_pIpcBlock->m_dwProcessId32, dwError);
-            InterlockedExchange(&m_pIpcBlock->m_dwProcessId32, 0);
+            DBGPUT(L"OpenProcess(%lu): Failed. error=%lu", m_pIpc->m_dwProcessId32, dwError);
+            InterlockedExchange(&m_pIpc->m_dwProcessId32, 0);
         }
     }
 
-    bool b32 = m_pIpcBlock->m_dwProcessId32 != 0 ? true : StartServer(32);
+    bool b32 = m_pIpc->m_dwProcessId32 != 0 ? true : StartServer(32);
 
     if (Platform::Is32bit())
     {
         return b32;
     }
 
-    if (m_pIpcBlock->m_dwProcessId64 != 0)
+    if (m_pIpc->m_dwProcessId64 != 0)
     {
-        HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, m_pIpcBlock->m_dwProcessId64);
+        HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, m_pIpc->m_dwProcessId64);
         if (h != NULL)
         {
             CloseHandle(h);
-            DBGPUT(L"Server64: PID=%lu", m_pIpcBlock->m_dwProcessId64);
+            DBGPUT(L"Server64: PID=%lu", m_pIpc->m_dwProcessId64);
         }
         else
         {
             DWORD dwError = GetLastError();
-            DBGPUT(L"OpenProcess(%lu): Failed. error=%lu", m_pIpcBlock->m_dwProcessId64, dwError);
-            InterlockedExchange(&m_pIpcBlock->m_dwProcessId64, 0);
+            DBGPUT(L"OpenProcess(%lu): Failed. error=%lu", m_pIpc->m_dwProcessId64, dwError);
+            InterlockedExchange(&m_pIpc->m_dwProcessId64, 0);
         }
     }
 
-    bool b64 = m_pIpcBlock->m_dwProcessId64 != 0 ? true : StartServer(64);
+    bool b64 = m_pIpc->m_dwProcessId64 != 0 ? true : StartServer(64);
 
     return b32 && b64;
 }
@@ -118,11 +117,11 @@ bool Client::StartServer(int bitness)
         {
             if (bitness == 64)
             {
-                bRet = m_pIpcBlock->m_dwProcessId64 != 0;
+                bRet = m_pIpc->m_dwProcessId64 != 0;
             }
             else
             {
-                bRet = m_pIpcBlock->m_dwProcessId32 != 0;
+                bRet = m_pIpc->m_dwProcessId32 != 0;
             }
             if (bRet)
             {
@@ -155,7 +154,7 @@ void Client::StopServer()
 {
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Client::StopServer");
 
-    if (m_pIpcBlock == NULL)
+    if (!m_pIpc)
     {
         Debug::Put(L"IPC block unavailable.");
         return;
@@ -165,48 +164,48 @@ void Client::StopServer()
     HANDLE hh[2];
     DWORD ii[2];
 
-    if (m_pIpcBlock->m_dwProcessId32 != 0)
+    if (m_pIpc->m_dwProcessId32 != 0)
     {
-        hh[dwCount] = OpenProcess(SYNCHRONIZE, FALSE, m_pIpcBlock->m_dwProcessId32);
+        hh[dwCount] = OpenProcess(SYNCHRONIZE, FALSE, m_pIpc->m_dwProcessId32);
         if (hh[dwCount] != NULL)
         {
-            DBGPUT(L"OpenProcess(%lu): return=%p", m_pIpcBlock->m_dwProcessId32, hh[dwCount]);
-            ii[dwCount] = m_pIpcBlock->m_dwProcessId32;
+            DBGPUT(L"OpenProcess(%lu): return=%p", m_pIpc->m_dwProcessId32, hh[dwCount]);
+            ii[dwCount] = m_pIpc->m_dwProcessId32;
             dwCount++;
         }
         else
         {
             DWORD dwError = GetLastError();
-            Debug::Put(L"OpenProcess(%lu): Failed. error=%lu", m_pIpcBlock->m_dwProcessId32, dwError);
+            Debug::Put(L"OpenProcess(%lu): Failed. error=%lu", m_pIpc->m_dwProcessId32, dwError);
         }
     }
 
-    if (m_pIpcBlock->m_dwProcessId64 != 0)
+    if (m_pIpc->m_dwProcessId64 != 0)
     {
-        hh[dwCount] = OpenProcess(SYNCHRONIZE, FALSE, m_pIpcBlock->m_dwProcessId64);
+        hh[dwCount] = OpenProcess(SYNCHRONIZE, FALSE, m_pIpc->m_dwProcessId64);
         if (hh[dwCount] != NULL)
         {
-            DBGPUT(L"OpenProcess(%lu): return=%p", m_pIpcBlock->m_dwProcessId64, hh[dwCount]);
-            ii[dwCount] = m_pIpcBlock->m_dwProcessId64;
+            DBGPUT(L"OpenProcess(%lu): return=%p", m_pIpc->m_dwProcessId64, hh[dwCount]);
+            ii[dwCount] = m_pIpc->m_dwProcessId64;
             dwCount++;
         }
         else
         {
             DWORD dwError = GetLastError();
-            Debug::Put(L"OpenProcess(%lu): Failed. error=%lu", m_pIpcBlock->m_dwProcessId64, dwError);
+            Debug::Put(L"OpenProcess(%lu): Failed. error=%lu", m_pIpc->m_dwProcessId64, dwError);
         }
     }
 
-    if (m_pIpcBlock->m_hWnd32 != 0)
+    if (m_pIpc->m_hWnd32 != 0)
     {
-        DBGPUT(L"PostMessage(32bit::%08lx,WM_CLOSE)...", m_pIpcBlock->m_hWnd32);
-        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd32)), WM_CLOSE, 0, 0);
+        DBGPUT(L"PostMessage(32bit::%08lx,WM_CLOSE)...", m_pIpc->m_hWnd32);
+        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_CLOSE, 0, 0);
     }
 
-    if (m_pIpcBlock->m_hWnd64 != 0)
+    if (m_pIpc->m_hWnd64 != 0)
     {
-        DBGPUT(L"PostMessage(64bit::%08lx,WM_CLOSE)...", m_pIpcBlock->m_hWnd64);
-        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd64)), WM_CLOSE, 0, 0);
+        DBGPUT(L"PostMessage(64bit::%08lx,WM_CLOSE)...", m_pIpc->m_hWnd64);
+        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_CLOSE, 0, 0);
     }
 
     for (int i = SHUTDOWN_TIMEOUT / SHUTDOWN_WAIT_INTERVAL; dwCount > 0 && i > 0; i--)
@@ -247,8 +246,8 @@ void Client::StopServer()
         CloseHandle(hh[dwIndex]);
     }
 
-    InterlockedExchange(&m_pIpcBlock->m_dwProcessId32, 0);
-    InterlockedExchange(&m_pIpcBlock->m_dwProcessId64, 0);
+    InterlockedExchange(&m_pIpc->m_dwProcessId32, 0);
+    InterlockedExchange(&m_pIpc->m_dwProcessId64, 0);
 }
 
 
@@ -322,9 +321,49 @@ bool Client::BuildCommandLine(HMODULE hModule, int bitness, PWCHAR pCommandLine)
 }
 
 
+DWORD Client::GetBlockInput()
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::GetBlockInput");
+    DBGPUT(L"Started.");
+    LRESULT lRet;
+    if (m_pIpc->m_hWnd64)
+    {
+        DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_GET_BLOCK_INPUT)", m_pIpc->m_hWnd64);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_GET_BLOCK_INPUT, 0, 0);
+    }
+    else
+    {
+        DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_GET_BLOCK_INPUT)", m_pIpc->m_hWnd32);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_GET_BLOCK_INPUT, 0, 0);
+    }
+    DBGPUT(L"Ended. return=%08lx", lRet);
+    return static_cast<DWORD>(lRet);
+}
+
+
+DWORD Client::SetBlockInput(DWORD dwFlags)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::SetBlockInput");
+    DBGPUT(L"Started. flags=%08lx", dwFlags);
+    LRESULT lRet;
+    if (m_pIpc->m_hWnd64)
+    {
+        DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_SET_BLOCK_INPUT,%08lx)", m_pIpc->m_hWnd64, dwFlags);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_SET_BLOCK_INPUT, dwFlags, 0);
+    }
+    else
+    {
+        DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_SET_BLOCK_INPUT,%08lx)", m_pIpc->m_hWnd32, dwFlags);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_SET_BLOCK_INPUT, dwFlags, 0);
+    }
+    DBGPUT(L"Ended. return=%08lx", lRet);
+    return static_cast<DWORD>(lRet);
+}
+
+
 bool Client::StartAgent(HWND hwnd)
 {
-    bool bRet = false;
+    LRESULT lRet = 0;
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Client::StartAgent");
     DBGPUT(L"Started. hwnd=%p", hwnd);
 
@@ -336,20 +375,18 @@ bool Client::StartAgent(HWND hwnd)
         int bitness = Platform::GetProcessBitness(dwProcessId);
         if (bitness == 64)
         {
-            DBGPUT(L"PostMessage(64-bit::%08lx,WM_APP_START_AGENT,%p)", m_pIpcBlock->m_hWnd64, hwnd);
-            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd64)), WM_APP_START_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
-            bRet = true;
+            DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_START_AGENT,%p)", m_pIpc->m_hWnd64, hwnd);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_START_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
         }
         else if (bitness == 32)
         {
-            DBGPUT(L"PostMessage(32-bit::%08lx,WM_APP_START_AGENT,%p)", m_pIpcBlock->m_hWnd32, hwnd);
-            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd32)), WM_APP_START_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
-            bRet = true;
+            DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_START_AGENT,%p)", m_pIpc->m_hWnd32, hwnd);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_START_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
         }
     }
 
-    DBGPUT(L"Ended. return=%s", bRet ? L"true" : L"false");
-    return bRet;
+    DBGPUT(L"Ended. return=%s", lRet ? L"true" : L"false");
+    return lRet ? true : false;
 }
 
 
@@ -366,22 +403,150 @@ void Client::StopAgent(HWND hwnd)
         int bitness = Platform::GetProcessBitness(dwProcessId);
         if (bitness == 64)
         {
-            DBGPUT(L"PostMessage(64-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpcBlock->m_hWnd64);
-            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd64)), WM_APP_STOP_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
+            DBGPUT(L"PostMessage(64-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpc->m_hWnd64);
+            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_STOP_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
         }
         else if (bitness == 32)
         {
-            DBGPUT(L"PostMessage(32-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpcBlock->m_hWnd32);
-            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd32)), WM_APP_STOP_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
+            DBGPUT(L"PostMessage(32-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpc->m_hWnd32);
+            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_STOP_AGENT, reinterpret_cast<WPARAM>(hwnd), 0);
         }
     }
     else
     {
-        DBGPUT(L"PostMessage(64-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpcBlock->m_hWnd64);
-        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd64)), WM_APP_STOP_AGENT, 0, 0);
-        DBGPUT(L"PostMessage(32-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpcBlock->m_hWnd32);
-        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpcBlock->m_hWnd32)), WM_APP_STOP_AGENT, 0, 0);
+        if (m_pIpc->m_hWnd64)
+        {
+            DBGPUT(L"PostMessage(64-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpc->m_hWnd64);
+            PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_STOP_AGENT, 0, 0);
+        }
+        DBGPUT(L"PostMessage(32-bit::%08lx,WM_APP_STOP_AGENT)", m_pIpc->m_hWnd32);
+        PostMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_STOP_AGENT, 0, 0);
     }
 
+    DBGPUT(L"Ended.");
+}
+
+
+DWORD Client::GetFlags(HWND hwnd)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::GetFlags");
+    DBGPUT(L"Started. hwnd=%p", hwnd);
+    LRESULT lRet = (LRESULT)-1;
+    if (hwnd != NULL)
+    {
+        DWORD dwProcessId = 0;
+        DWORD dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
+        DBGPUT(L"TID=%lu PID=%lu", dwThreadId, dwProcessId);
+        int bitness = Platform::GetProcessBitness(dwProcessId);
+        if (bitness == 64)
+        {
+            DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_GET_FLAGS,%p)", m_pIpc->m_hWnd64, hwnd);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_GET_FLAGS, reinterpret_cast<WPARAM>(hwnd), 0);
+        }
+        else if (bitness == 32)
+        {
+            DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_GET_FLAGS,%p)", m_pIpc->m_hWnd32, hwnd);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_GET_FLAGS, reinterpret_cast<WPARAM>(hwnd), 0);
+        }
+    }
+    else if (m_pIpc->m_hWnd64)
+    {
+        DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_GET_FLAGS)", m_pIpc->m_hWnd64);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_GET_FLAGS, 0, 0);
+    }
+    else
+    {
+        DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_GET_FLAGS)", m_pIpc->m_hWnd32);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_GET_FLAGS, 0, 0);
+    }
+    DBGPUT(L"Ended. return=%08lx", lRet);
+    return static_cast<DWORD>(lRet);
+}
+
+
+DWORD Client::SetFlags(HWND hwnd, DWORD dwFlags)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::SetFlags");
+    DBGPUT(L"Started. hwnd=%p set=%08lx", hwnd, dwFlags);
+    LRESULT lRet = (LRESULT)-1;
+    if (hwnd != NULL)
+    {
+        DWORD dwProcessId = 0;
+        DWORD dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
+        DBGPUT(L"TID=%lu PID=%lu", dwThreadId, dwProcessId);
+        int bitness = Platform::GetProcessBitness(dwProcessId);
+        if (bitness == 64)
+        {
+            DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_SET_IME_FLAGS,%p,%08lx)", m_pIpc->m_hWnd64, hwnd, dwFlags);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_SET_FLAGS, reinterpret_cast<WPARAM>(hwnd), dwFlags);
+        }
+        else if (bitness == 32)
+        {
+            DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_SET_IME_FLAGS,%p,%08lx)", m_pIpc->m_hWnd32, hwnd, dwFlags);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_SET_FLAGS, reinterpret_cast<WPARAM>(hwnd), dwFlags);
+        }
+    }
+    else if (m_pIpc->m_hWnd64)
+    {
+        DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_SET_IME_FLAGS,0,%08lx)", m_pIpc->m_hWnd64, dwFlags);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_SET_FLAGS, 0, dwFlags);
+    }
+    else
+    {
+        DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_SET_IME_FLAGS,0,%08lx)", m_pIpc->m_hWnd32, dwFlags);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_SET_FLAGS, 0, dwFlags);
+    }
+    DBGPUT(L"Ended. return=%08lx", lRet);
+    return static_cast<DWORD>(lRet);
+}
+
+
+LANGID Client::GetPreferredKeyboardLayout()
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::GetPreferredKeyboardLayout");
+    DBGPUT(L"Started.");
+    LANGID langId;
+    if (m_pIpc->m_hWnd64)
+    {
+        DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_GET_KBD_LAYOUT)", m_pIpc->m_hWnd64);
+        langId = (LANGID)SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_GET_KBD_LAYOUT, 0, 0);
+    }
+    else
+    {
+        DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_GET_KBD_LAYOUT)", m_pIpc->m_hWnd32);
+        langId = (LANGID)SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_GET_KBD_LAYOUT, 0, 0);
+    }
+    DBGPUT(L"Ended. return=%04x", langId);
+    return langId;
+
+}
+
+
+LANGID Client::SetPreferredKeyboardLayout(LANGID langId)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::SetPreferredKeyboardLayout");
+    DBGPUT(L"Started. lang=%04x", langId);
+    LRESULT lRet;
+    if (m_pIpc->m_hWnd64)
+    {
+        DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_SET_KBD_LAYOUT,%04x)", m_pIpc->m_hWnd64, langId);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_SET_KBD_LAYOUT, langId, 0);
+    }
+    else
+    {
+        DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_SET_KBD_LAYOUT,%04x)", m_pIpc->m_hWnd32, langId);
+        lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_SET_KBD_LAYOUT, langId, 0);
+    }
+    DBGPUT(L"Ended. return=%04lx", lRet);
+    return static_cast<LANGID>(lRet);
+}
+
+
+void Client::SetToggleSequence(PCWSTR psz)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::SetToggleSequence");
+    DBGPUT(L"Started. sequence=%s", psz);
+    m_pIpc->m_ToggleSequece.Clear();
+    m_pIpc->m_ToggleSequece.Parse(psz);
     DBGPUT(L"Ended.");
 }

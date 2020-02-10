@@ -12,11 +12,11 @@ HRESULT STDMETHODCALLTYPE Agent::OnLanguageChange(
     /* [out] */ __RPC__out BOOL *pfAccept)
 {
     DBGFNC(L"UiPathTeam::KeyboardExtension::Agent::OnLanguageChange(%04x)", langid);
-    if (m_bEnabled
-        && (m_pIpcBlock->m_dwFlags & FLAG_FORCE_LAYOUT) == FLAG_FORCE_LAYOUT
-        && m_pIpcBlock->m_ForcedLangId != langid
-        && m_pIpcBlock->m_ForcedLangId != (LANGID)0
-        && m_pIpcBlock->m_ForcedLangId != (LANGID)-1)
+    if (m_pDesktopIpc->m_KeyboardLayoutSetting.m_PreferredLangId != (LANGID)0
+        && m_pDesktopIpc->m_KeyboardLayoutSetting.m_SelectedLangId != langid
+        && m_pDesktopIpc->m_KeyboardLayoutSetting.m_SelectedLangId != (LANGID)0
+        && m_pDesktopIpc->m_KeyboardLayoutSetting.m_SelectedLangId != (LANGID)-1
+        && !m_pDesktopIpc->m_Paused)
     {
         *pfAccept = FALSE;
         DBGPUT(L"return=S_OK Accept=FALSE");
@@ -31,10 +31,10 @@ HRESULT STDMETHODCALLTYPE Agent::OnLanguageChange(
 HRESULT STDMETHODCALLTYPE Agent::OnLanguageChanged(void)
 {
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Agent::OnLanguageChanged");
-    HRESULT hr = m_pInputProcessorProfiles->GetCurrentLanguage(&m_LangId);
+    HRESULT hr = m_pInputProcessorProfiles->GetCurrentLanguage(&m_pAgentIpc->m_LangId);
     if (hr == S_OK)
     {
-        DBGPUT(L"TfInputProcessorProfiles::GetCurrentLanguage: %04x", m_LangId);
+        DBGPUT(L"TfInputProcessorProfiles::GetCurrentLanguage: %04x", m_pAgentIpc->m_LangId);
     }
     else
     {

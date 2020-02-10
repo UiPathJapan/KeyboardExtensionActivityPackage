@@ -7,10 +7,10 @@ namespace UiPathTeam.KeyboardExtension.Activities
 {
     internal static class Bridge
     {
-        public const int FLAG_DISABLE_KEYBD = 1 << 0;
-        public const int FLAG_DISABLE_MOUSE = 1 << 1;
-        public const int FLAG_DISABLE_IME = 1 << 2;
-        public const int FLAG_FORCE_LAYOUT = 1 << 3;
+        public const int BLOCK_KEYBD = 1 << 0;
+        public const int BLOCK_MOUSE = 1 << 1;
+        public const int RESET_IME = 1 << 0;
+        public const int SET_IME = 1 << 1;
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr LoadLibraryW(string dllToLoad);
@@ -32,11 +32,43 @@ namespace UiPathTeam.KeyboardExtension.Activities
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate void UnmanagedSetFlags(int flagsToSet, int flagsToReset);
+        private delegate int UnmanagedGetBlockInput();
 
-        public static void SetFlags(int flagsToSet, int flagsToReset)
+        public static int GetBlockInput()
         {
-            ((UnmanagedSetFlags)GetDelegate("SetFlags", typeof(UnmanagedSetFlags)))(flagsToSet, flagsToReset);
+            return ((UnmanagedGetBlockInput)GetDelegate("GetBlockInput", typeof(UnmanagedGetBlockInput)))();
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate int UnmanagedGetFlags(IntPtr hwnd);
+
+        public static int GetFlags(IntPtr hwnd)
+        {
+            return ((UnmanagedGetFlags)GetDelegate("GetFlags", typeof(UnmanagedGetFlags)))(hwnd);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate ushort UnmanagedGetPreferredKeyboardLayout();
+
+        public static ushort GetPreferredKeyboardLayout()
+        {
+            return ((UnmanagedGetPreferredKeyboardLayout)GetDelegate("GetPreferredKeyboardLayout", typeof(UnmanagedGetPreferredKeyboardLayout)))();
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate int UnmanagedSetBlockInput(int flags);
+
+        public static int SetBlockInput(int flags)
+        {
+            return ((UnmanagedSetBlockInput)GetDelegate("SetBlockInput", typeof(UnmanagedSetBlockInput)))(flags);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate int UnmanagedSetFlags(IntPtr hwnd, int flags);
+
+        public static int SetFlags(IntPtr hwnd, int flags)
+        {
+            return ((UnmanagedSetFlags)GetDelegate("SetFlags", typeof(UnmanagedSetFlags)))(hwnd, flags);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]

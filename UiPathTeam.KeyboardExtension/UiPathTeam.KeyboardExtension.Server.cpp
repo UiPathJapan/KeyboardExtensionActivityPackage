@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "LowIntegrityImpersonator.h"
 #include "Platform.h"
 #include "UiPathTeam.KeyboardExtension.Agent.h"
 #include "UiPathTeam.KeyboardExtension.Server.h"
@@ -13,18 +14,19 @@ Server* Server::m_pInstance = NULL;
 
 Server::Server(HMODULE hModule)
     : m_hModule(hModule)
-    , m_hIpcMapping(NULL)
-    , m_pIpcBlock(NULL)
-    , m_bInitialized(false)
+    , m_pServerIpc()
+    , m_pDesktopIpc()
     , m_hExitEvent(NULL)
     , m_hClientProcessWatcher(NULL)
     , m_hClientProcess(NULL)
     , m_hKeybdHook(NULL)
     , m_hMouseHook(NULL)
-    , m_CallWndProcHookMap()
+    , m_AgentMap()
     , m_atomWndClass(0)
     , m_hwndMessage(NULL)
     , m_pressedKeys()
+    , m_bBlockKeybd(false)
+    , m_bBlockMouse(false)
 {
     Debug::Function x(L"UiPathTeam::KeyboardExtension::Server::ctor");
     DBGPUT(L"Started.");
@@ -46,17 +48,26 @@ Server::~Server()
 
 void Server::Initialize()
 {
-    m_pIpcBlock = Ipc::Map(m_hIpcMapping);
-    if (m_pIpcBlock == NULL)
+    if (!m_pServerIpc.Map())
     {
-        throw std::runtime_error("IPC block unavailable.");
+        throw std::runtime_error("Client-Server IPC block unavailable.");
     }
+
+    {
+        // Temporarily impersonate the low integrity so that even Internet Explorer in the protected mode can map this IPC block.
+        LowIntegrityImpersonator x;
+        if (!m_pDesktopIpc.Map())
+        {
+            throw std::runtime_error("Server-AnyAgent IPC block unavailable.");
+        }
+    }
+    m_pDesktopIpc->Clear();
 
     m_hExitEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
     if (m_hExitEvent == NULL)
     {
         Uninitialize();
-        throw std::runtime_error("Event unavailable.");
+        throw std::runtime_error("Event object unavailable.");
     }
 }
 
@@ -96,7 +107,9 @@ void Server::Uninitialize()
         }
     }
 
-    m_pIpcBlock->Unmap(m_hIpcMapping);
+    m_pDesktopIpc.Unmap();
+
+    m_pServerIpc.Unmap();
 }
 
 
@@ -241,17 +254,16 @@ void Server::InstallMouseHook()
 
 bool Server::InstallCallWndProcHook(DWORD dwThreadId)
 {
-    HHOOK hHook = SetWindowsHookExW(WH_CALLWNDPROC, Agent::CallWndProcHook, m_hModule, dwThreadId);
-    if (hHook != NULL)
+    AgentHook* pAgent = new AgentHook(dwThreadId, m_hModule, m_pDesktopIpc->m_dwFlags);
+
+    if (pAgent->m_pIpc && pAgent->m_hCallWndProcHook != NULL)
     {
-        DBGPUT(L"SetWindowsHookEx(WH_CALLWNDPROC,%lu): return=%p", dwThreadId, hHook);
-        m_CallWndProcHookMap.insert(std::pair<DWORD, HHOOK>(dwThreadId, hHook));
+        m_AgentMap.insert(std::pair<DWORD, AgentHook*>(dwThreadId, pAgent));
         return true;
     }
     else
     {
-        DWORD dwError = GetLastError();
-        Debug::Put(L"SetWindowsHookEx(WH_CALLWNDPROC): Failed. error=%lu", dwError);
+        delete pAgent;
         return false;
     }
 }
@@ -261,7 +273,6 @@ void Server::UninstallKeybdHook()
 {
     if (m_hKeybdHook != NULL)
     {
-        m_pIpcBlock->SetFlags(0, FLAG_DISABLE_KEYBD);
         if (UnhookWindowsHookEx(m_hKeybdHook))
         {
             DBGPUT(L"UnhookWindowsHookEx(WH_KEYBOARD_LL)");
@@ -280,7 +291,6 @@ void Server::UninstallMouseHook()
 {
     if (m_hMouseHook != NULL)
     {
-        m_pIpcBlock->SetFlags(0, FLAG_DISABLE_MOUSE);
         if (UnhookWindowsHookEx(m_hMouseHook))
         {
             DBGPUT(L"UnhookWindowsHookEx(WH_MOUSE_LL)");
@@ -295,38 +305,70 @@ void Server::UninstallMouseHook()
 }
 
 
-void Server::UninstallCallWndProcHook(std::map<DWORD, HHOOK>::iterator& iter)
+void Server::UninstallCallWndProcHook(std::map<DWORD, AgentHook*>::iterator& iter)
 {
     DWORD dwThreadId = iter->first;
-    HHOOK hHook = iter->second;
-    if (UnhookWindowsHookEx(hHook))
-    {
-        DBGPUT(L"UnhookWindowsHookEx(WH_CALLWNDPROC::%p::%lu)", hHook, dwThreadId);
-    }
-    else
-    {
-        DWORD dwError = GetLastError();
-        Debug::Put(L"UnhookWindowsHookEx(WH_CALLWNDPROC::%p::%lu): Failed. error=%lu", hHook, dwThreadId, dwError);
-    }
-    m_CallWndProcHookMap.erase(iter);
+    AgentHook* pAgent = iter->second;
+    iter->second = NULL;
+    delete pAgent;
+    m_AgentMap.erase(iter);
 }
 
 
 void Server::UninstallAllCallWndProcHooks()
 {
-    for (std::map<DWORD, HHOOK>::iterator iter = m_CallWndProcHookMap.begin(); iter != m_CallWndProcHookMap.end(); iter++)
+    for (std::map<DWORD, AgentHook*>::iterator iter = m_AgentMap.begin(); iter != m_AgentMap.end(); iter++)
     {
         DWORD dwThreadId = iter->first;
-        HHOOK hHook = iter->second;
-        if (UnhookWindowsHookEx(hHook))
+        AgentHook* pAgent = iter->second;
+        iter->second = NULL;
+        delete pAgent;
+    }
+    m_AgentMap.clear();
+}
+
+
+AgentHook::AgentHook(DWORD dwThreadId, HMODULE hModule, DWORD dwFlags)
+    : m_pIpc()
+    , m_hCallWndProcHook(NULL)
+{
+    {
+        // Temporarily impersonate the low integrity so that even Internet Explorer in the protected mode can map this IPC block.
+        LowIntegrityImpersonator x;
+        if (!m_pIpc.Map(dwThreadId))
         {
-            DBGPUT(L"UnhookWindowsHookEx(WH_CALLWNDPROC::%p::%lu)", hHook, dwThreadId);
+            return;
+        }
+    }
+    m_pIpc->Clear(dwThreadId, dwFlags);
+
+    m_hCallWndProcHook = SetWindowsHookExW(WH_CALLWNDPROC, Agent::CallWndProcHook, hModule, dwThreadId);
+    if (m_hCallWndProcHook != NULL)
+    {
+        DBGPUT(L"SetWindowsHookEx(WH_CALLWNDPROC,%lu): return=%p", dwThreadId, m_hCallWndProcHook);
+    }
+    else
+    {
+        DWORD dwError = GetLastError();
+        Debug::Put(L"SetWindowsHookEx(WH_CALLWNDPROC): Failed. error=%lu", dwError);
+    }
+}
+
+
+AgentHook::~AgentHook()
+{
+    if (m_hCallWndProcHook != NULL)
+    {
+        if (UnhookWindowsHookEx(m_hCallWndProcHook))
+        {
+            DBGPUT(L"UnhookWindowsHookEx(WH_CALLWNDPROC::%p::%lu)", m_hCallWndProcHook, m_pIpc->m_dwThreadId);
         }
         else
         {
             DWORD dwError = GetLastError();
-            Debug::Put(L"UnhookWindowsHookEx(WH_CALLWNDPROC::%p::%lu): Failed. error=%lu", hHook, dwThreadId, dwError);
+            Debug::Put(L"UnhookWindowsHookEx(WH_CALLWNDPROC::%p::%lu): Failed. error=%lu", m_hCallWndProcHook, m_pIpc->m_dwThreadId, dwError);
         }
     }
-    m_CallWndProcHookMap.clear();
+
+    m_pIpc.Unmap();
 }

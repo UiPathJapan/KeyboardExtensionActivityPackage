@@ -1,4 +1,5 @@
-﻿using System.Activities;
+﻿using System;
+using System.Activities;
 
 namespace UiPathTeam.KeyboardExtension.Activities
 {
@@ -51,56 +52,45 @@ namespace UiPathTeam.KeyboardExtension.Activities
 
         protected override void Execute(CodeActivityContext context)
         {
-            int flagsToSet = 0;
-            int flagsToReset = 0;
+            int blockFlags = 0;
 
             if (BlockKeyboardInput)
             {
-                flagsToSet |= Bridge.FLAG_DISABLE_KEYBD;
-            }
-            else
-            {
-                flagsToReset |= Bridge.FLAG_DISABLE_KEYBD;
+                blockFlags |= Bridge.BLOCK_KEYBD;
             }
 
             if (BlockMouseInput)
             {
-                flagsToSet |= Bridge.FLAG_DISABLE_MOUSE;
+                blockFlags |= Bridge.BLOCK_MOUSE;
             }
-            else
-            {
-                flagsToReset |= Bridge.FLAG_DISABLE_MOUSE;
-            }
+
+            Bridge.SetBlockInput(blockFlags);
+
+            int flags = 0;
 
             if (DisableInputMethodEditor)
             {
-                flagsToSet |= Bridge.FLAG_DISABLE_IME;
-            }
-            else
-            {
-                flagsToReset |= Bridge.FLAG_DISABLE_IME;
+                flags |= Bridge.RESET_IME;
             }
 
-            if (ForceKeyboardLayout)
-            {
-                flagsToSet |= Bridge.FLAG_FORCE_LAYOUT;
-            }
-            else
-            {
-                flagsToReset |= Bridge.FLAG_FORCE_LAYOUT;
-            }
-
-            Bridge.SetFlags(flagsToSet, flagsToReset);
+            Bridge.SetFlags((IntPtr)0, flags);
 
             if (ToggleSequence != null)
             {
                 Bridge.SetToggleSequence(ToggleSequence.Get(context));
             }
 
-            ushort langId = PreferredKeyboardLayout != null ? PreferredKeyboardLayout.Get(context) : (ushort)0;
-            if (langId == 0)
+            ushort langId = 0;
+            if (ForceKeyboardLayout)
             {
-                langId = DEFAULT_PREFERRED_KEYBOARD_LAYOUT;
+                if (PreferredKeyboardLayout != null)
+                {
+                    langId = PreferredKeyboardLayout.Get(context);
+                }
+                if (langId == 0)
+                {
+                    langId = DEFAULT_PREFERRED_KEYBOARD_LAYOUT;
+                }
             }
             Bridge.SetPreferredKeyboardLayout(langId);
         }
