@@ -1,7 +1,7 @@
 {
   "name": "KeyboardExtensionSamples",
   "description": "キーボード拡張アクティビティパッケージのサンプル集\r\nSample workflows for Keyboard Extension activity package.",
-  "main": "AllTests.xaml",
+  "main": "RunAll.xaml",
   "dependencies": {
     "UiPath.System.Activities": "[19.10.1]",
     "UiPath.UIAutomation.Activities": "[19.11.1]",
