@@ -4,7 +4,7 @@
   "main": "RunAll.xaml",
   "dependencies": {
     "UiPath.System.Activities": "[19.10.1]",
-    "UiPath.UIAutomation.Activities": "[19.11.1]",
+    "UiPath.UIAutomation.Activities": "[19.11.2]",
     "UiPathTeam.KeyboardExtension.Activities": "[2.2.1]"
   },
   "webServices": [],
