@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ApplyDescription" xml:space="preserve">
-    <value>Designates a window to apply the input settings to.</value>
+    <value>Applies the input settings to the designated window.</value>
   </data>
   <data name="ApplyDisplayName" xml:space="preserve">
     <value>Apply Input Settings</value>
   </data>
   <data name="ApplyResultDescription" xml:space="preserve">
-    <value>Receives the result, which is true on success and is false on failure.</value>
+    <value>Receives the result. True on success, False otherwise.</value>
   </data>
   <data name="ApplyResultDisplayName" xml:space="preserve">
     <value>Result</value>
@@ -148,13 +148,16 @@
     <value>Block Mouse Input</value>
   </data>
   <data name="ConfigureDescription" xml:space="preserve">
-    <value>Configures the input settings for the windows designated by the Apply activity.</value>
+    <value>Configures the input settings for the windows designated by the Apply Input Settings activity.</value>
   </data>
   <data name="ConfigureDisplayName" xml:space="preserve">
     <value>Configure Input Settings</value>
   </data>
+  <data name="ConfigureKeyboardLayoutArgumentValidationError" xml:space="preserve">
+    <value>Preferred Keyboard Layout is not set while Force Keyboard Layout is set to True.</value>
+  </data>
   <data name="DisableInputMethodEditorDescription" xml:space="preserve">
-    <value>Specifies whether to disable Input Method Editor or not. True to disable. False not to.</value>
+    <value>Specifies whether to forcibly turn off Input Method Editor or not. True to turn off. False not to.</value>
   </data>
   <data name="DisableInputMethodEditorDisplayName" xml:space="preserve">
     <value>Disable Input Method Editor</value>
@@ -166,28 +169,28 @@
     <value>Force Keyboard Layout</value>
   </data>
   <data name="GetStateConversionModeDescription" xml:space="preserve">
-    <value>Receives the ConversionMode compartment value.</value>
+    <value>Receives the Conversion Mode compartment value.</value>
   </data>
   <data name="GetStateConversionModeDisplayName" xml:space="preserve">
-    <value>ConversionMode</value>
+    <value>Conversion Mode</value>
   </data>
   <data name="GetStateDescription" xml:space="preserve">
-    <value>Retrieves the keyboard layout and the compartment values set in the designated window.</value>
+    <value>Gets the keyboard layout and the compartment values set in the designated window.</value>
   </data>
   <data name="GetStateDisplayName" xml:space="preserve">
     <value>Get Keyboard State</value>
   </data>
   <data name="GetStateKeyboardLayoutDescription" xml:space="preserve">
-    <value>Receives the language identifier of the keyboard layout.</value>
+    <value>Receives the language ID of the keyboard layout.</value>
   </data>
   <data name="GetStateKeyboardLayoutDisplayName" xml:space="preserve">
     <value>Keyboard Layout</value>
   </data>
   <data name="GetStateKeyboardOpenCloseDescription" xml:space="preserve">
-    <value>Receives the KeyboardOpenClose compartment value. True when IME is turned on. Otherwise, False.</value>
+    <value>Receives the Keyboard OpenClose compartment value. True when IME is turned on. False otherwise.</value>
   </data>
   <data name="GetStateKeyboardOpenCloseDisplayName" xml:space="preserve">
-    <value>KeyboardOpenClose</value>
+    <value>Keyboard OpenClose</value>
   </data>
   <data name="GetStateWindowHandleDescription" xml:space="preserve">
     <value>Win32 Handle of a window to retrieve the keyboard state from. Window, Browser, and UiElement are also acceptble.</value>
@@ -208,7 +211,7 @@
     <value>Output</value>
   </data>
   <data name="PreferredKeyboardLayoutDescription" xml:space="preserve">
-    <value>Language ID of the preferred keyboard layout to be set if the flag is set.</value>
+    <value>Language ID of the preferred keyboard layout to be set if the Force Keyboard Layout property is set to True.</value>
   </data>
   <data name="PreferredKeyboardLayoutDisplayName" xml:space="preserve">
     <value>Preferred Keyboard Layout</value>
@@ -225,6 +228,45 @@
   <data name="RestoreWindowHandleDisplayName" xml:space="preserve">
     <value>Window Handle</value>
   </data>
+  <data name="SetStateConversionModeDescription" xml:space="preserve">
+    <value>Conversion Mode compartment value to set. Specify either this or the Keyboard OpenClose compartment value.</value>
+  </data>
+  <data name="SetStateConversionModeDisplayName" xml:space="preserve">
+    <value>Conversion Mode</value>
+  </data>
+  <data name="SetStateDescription" xml:space="preserve">
+    <value>Sets one of compartment values of the keyboard to the designated window. </value>
+  </data>
+  <data name="SetStateDisplayName" xml:space="preserve">
+    <value>Set Keyboard State</value>
+  </data>
+  <data name="SetStateInputArgumentValidationError" xml:space="preserve">
+    <value>Both Keyboard OpenClose and Conversion Mode cannot be specified at the same time.</value>
+  </data>
+  <data name="SetStateKeyboardOpenCloseDescription" xml:space="preserve">
+    <value>Keyboard OpenClose compartment value to set. Specify either this or the Conversion Mode compartment value.</value>
+  </data>
+  <data name="SetStateKeyboardOpenCloseDisplayName" xml:space="preserve">
+    <value>Keyboard OpenClose</value>
+  </data>
+  <data name="SetStatePreviousConversionModeDescription" xml:space="preserve">
+    <value>Receives the Conversion Mode compartment value previously set.</value>
+  </data>
+  <data name="SetStatePreviousConversionModeDisplayName" xml:space="preserve">
+    <value>Previous Conversion Mode</value>
+  </data>
+  <data name="SetStatePreviousKeyboardOpenCloseDescription" xml:space="preserve">
+    <value>Receives the Keyboard OpenClose compartment value previously set.</value>
+  </data>
+  <data name="SetStatePreviousKeyboardOpenCloseDisplayName" xml:space="preserve">
+    <value>Previous Keyboard OpenClose</value>
+  </data>
+  <data name="SetStateWindowHandleDescription" xml:space="preserve">
+    <value>Win32 Handle of the target window. Window, Browser, and UiElement are also acceptable.</value>
+  </data>
+  <data name="SetStateWindowHandleDisplayName" xml:space="preserve">
+    <value>Window Handle</value>
+  </data>
   <data name="ToggleSequenceDescription" xml:space="preserve">
     <value>Specifies the key combination to toggle on/off state of the input settings. Virtual key names are accepted. Plus sign combines keys.</value>
   </data>
@@ -236,5 +278,8 @@
   </data>
   <data name="UninitializeDisplayName" xml:space="preserve">
     <value>Uninitialize Keyboard Extension</value>
+  </data>
+  <data name="WindowHandleArgumentValidationError" xml:space="preserve">
+    <value>Null value cannot be specified to Window Handle (Window, Browser, or UiElement).</value>
   </data>
 </root>

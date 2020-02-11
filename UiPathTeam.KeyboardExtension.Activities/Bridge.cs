@@ -11,6 +11,8 @@ namespace UiPathTeam.KeyboardExtension.Activities
         public const int BLOCK_MOUSE = 1 << 1;
         public const int RESET_IME = 1 << 0;
         public const int SET_IME = 1 << 1;
+        public const int OPENCLOSE = 1 << 0;
+        public const int CONVERSION = 1 << 1;
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr LoadLibraryW(string dllToLoad);
@@ -56,14 +58,6 @@ namespace UiPathTeam.KeyboardExtension.Activities
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate uint UnmanagedGetState(IntPtr hwnd);
-
-        public static uint GetState(IntPtr hwnd)
-        {
-            return ((UnmanagedGetState)GetDelegate("GetState", typeof(UnmanagedGetState)))(hwnd);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate int UnmanagedSetBlockInput(int flags);
 
         public static int SetBlockInput(int flags)
@@ -77,6 +71,14 @@ namespace UiPathTeam.KeyboardExtension.Activities
         public static int SetFlags(IntPtr hwnd, int flags)
         {
             return ((UnmanagedSetFlags)GetDelegate("SetFlags", typeof(UnmanagedSetFlags)))(hwnd, flags);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate int UnmanagedSetState(IntPtr hwnd, int state, int mask);
+
+        public static int SetState(IntPtr hwnd, int state, int mask)
+        {
+            return ((UnmanagedSetState)GetDelegate("SetState", typeof(UnmanagedSetState)))(hwnd, state, mask);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]

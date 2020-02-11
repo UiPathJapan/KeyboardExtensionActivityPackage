@@ -1,4 +1,5 @@
-﻿using System.Activities;
+﻿using System;
+using System.Activities;
 
 namespace UiPathTeam.KeyboardExtension.Activities
 {
@@ -29,19 +30,15 @@ namespace UiPathTeam.KeyboardExtension.Activities
 
         protected override void Execute(CodeActivityContext context)
         {
-            var value = Bridge.GetState(Bridge.ToWin32Handle(WindowHandle.Get(context)));
-            if (KeyboardLayout != null)
+            var h = WindowHandle.Get(context);
+            if (h == null)
             {
-                KeyboardLayout.Set(context, (int)((value >> 0) & 0xffff));
+                throw new ArgumentException(Resource.WindowHandleArgumentValidationError);
             }
-            if (KeyboardOpenClose != null)
-            {
-                KeyboardOpenClose.Set(context, ((value >> 31) & 1) == 1);
-            }
-            if (ConversionMode != null)
-            {
-                ConversionMode.Set(context, (int)((value >> 16) & 0x7fff));
-            }
+            var value = Bridge.SetState(Bridge.ToWin32Handle(h), 0, 0);
+            KeyboardLayout.Set(context, (value >> 16) & 0xffff);
+            KeyboardOpenClose.Set(context, ((value >> 15) & 1) == 1);
+            ConversionMode.Set(context, (value >> 0) & 0x7fff);
         }
     }
 }

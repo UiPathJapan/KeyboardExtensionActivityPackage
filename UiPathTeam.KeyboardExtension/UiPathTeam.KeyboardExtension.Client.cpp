@@ -552,10 +552,26 @@ void Client::SetToggleSequence(PCWSTR psz)
 }
 
 
-DWORD Client::GetState(HWND hwnd)
+static UINT SetStateMaskToMessage(DWORD dwMask)
 {
-    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::GetState");
-    DBGPUT(L"Started. hwnd=%p", hwnd);
+    switch (dwMask & (OPENCLOSE | CONVERSION))
+    {
+    case OPENCLOSE:
+        return WM_APP_SET_OPENCLOSE;
+    case CONVERSION:
+        return WM_APP_SET_CONVERSION;
+    case (OPENCLOSE | CONVERSION):
+        // NOT ALLOWED - IGNORED
+    default:
+        return WM_APP_GET_STATE;
+    }
+}
+
+
+DWORD Client::SetState(HWND hwnd, DWORD dwState, DWORD dwMask)
+{
+    DBGFNC(L"UiPathTeam::KeyboardExtension::Client::SetState");
+    DBGPUT(L"Started. hwnd=%p state=%08lx mask=%08lx", hwnd, dwState, dwMask);
     LRESULT lRet = 0;
     if (hwnd != NULL)
     {
@@ -565,13 +581,11 @@ DWORD Client::GetState(HWND hwnd)
         int bitness = Platform::GetProcessBitness(dwProcessId);
         if (bitness == 64)
         {
-            DBGPUT(L"SendMessage(64-bit::%08lx,WM_APP_GET_CURRENT_STATE,%p)", m_pIpc->m_hWnd64, hwnd);
-            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), WM_APP_GET_CURRENT_STATE, reinterpret_cast<WPARAM>(hwnd), 0);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd64)), SetStateMaskToMessage(dwMask), reinterpret_cast<WPARAM>(hwnd), dwState);
         }
         else if (bitness == 32)
         {
-            DBGPUT(L"SendMessage(32-bit::%08lx,WM_APP_GET_CURRENT_STATE,%p)", m_pIpc->m_hWnd32, hwnd);
-            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), WM_APP_GET_CURRENT_STATE, reinterpret_cast<WPARAM>(hwnd), 0);
+            lRet = SendMessageW(reinterpret_cast<HWND>(static_cast<DWORD_PTR>(m_pIpc->m_hWnd32)), SetStateMaskToMessage(dwMask), reinterpret_cast<WPARAM>(hwnd), dwState);
         }
     }
     DBGPUT(L"Ended. return=%08lx", lRet);

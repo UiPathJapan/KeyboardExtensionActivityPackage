@@ -75,19 +75,21 @@ namespace UiPathTeam.KeyboardExtension.Activities
 
             Bridge.SetFlags((IntPtr)0, flags);
 
-            if (ToggleSequence != null)
+            var seq = ToggleSequence.Get(context);
+            if (!string.IsNullOrEmpty(seq))
             {
-                Bridge.SetToggleSequence(ToggleSequence.Get(context));
+                Bridge.SetToggleSequence(seq);
             }
 
-            ushort langId = 0;
+            ushort langId = 0; // zero means not to change
             if (ForceKeyboardLayout)
             {
-                if (PreferredKeyboardLayout != null)
+                if (PreferredKeyboardLayout.Expression == null)
                 {
-                    langId = (ushort)PreferredKeyboardLayout.Get(context);
+                    throw new ArgumentException(Resource.ConfigureKeyboardLayoutArgumentValidationError);
                 }
-                if (langId == 0)
+                langId = (ushort)PreferredKeyboardLayout.Get(context);
+                if (langId == 0) // explicitly specified zero means to use the default
                 {
                     langId = DEFAULT_PREFERRED_KEYBOARD_LAYOUT;
                 }

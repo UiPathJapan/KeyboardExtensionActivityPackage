@@ -55,6 +55,7 @@
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
     <Compile Include="Restore.cs" />
+    <Compile Include="SetState.cs" />
     <Compile Include="Uninitialize.cs" />
   </ItemGroup>
   <ItemGroup>

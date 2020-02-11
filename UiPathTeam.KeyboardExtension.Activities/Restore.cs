@@ -14,16 +14,19 @@ namespace UiPathTeam.KeyboardExtension.Activities
 
         protected override void Execute(CodeActivityContext context)
         {
-            if (WindowHandle != null)
+            if (WindowHandle.Expression == null)
+            {
+                Bridge.StopAgent((IntPtr)0); // means all windows previously applied
+            }
+            else
             {
                 var value = WindowHandle.Get(context);
-                if (value != null)
+                if (value == null)
                 {
-                    Bridge.StopAgent(Bridge.ToWin32Handle(value));
-                    return;
+                    throw new ArgumentException(Resource.WindowHandleArgumentValidationError);
                 }
+                Bridge.StopAgent(Bridge.ToWin32Handle(value));
             }
-            Bridge.StopAgent((IntPtr)0);
         }
     }
 }

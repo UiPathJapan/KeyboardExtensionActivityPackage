@@ -11,4 +11,4 @@ EXPORTS
 	SetToggleSequence
 	StartAgent
 	StopAgent
-	GetState
+	SetState

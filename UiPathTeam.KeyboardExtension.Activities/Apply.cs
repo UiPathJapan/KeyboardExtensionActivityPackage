@@ -1,4 +1,5 @@
-﻿using System.Activities;
+﻿using System;
+using System.Activities;
 
 namespace UiPathTeam.KeyboardExtension.Activities
 {
@@ -19,11 +20,13 @@ namespace UiPathTeam.KeyboardExtension.Activities
 
         protected override void Execute(CodeActivityContext context)
         {
-            bool res = Bridge.StartAgent(Bridge.ToWin32Handle(WindowHandle.Get(context)));
-            if (Result != null)
+            var h = WindowHandle.Get(context);
+            if (h == null)
             {
-                Result.Set(context, res);
+                throw new ArgumentException(Resource.WindowHandleArgumentValidationError);
             }
+            bool res = Bridge.StartAgent(Bridge.ToWin32Handle(h));
+            Result.Set(context, res);
         }
     }
 }

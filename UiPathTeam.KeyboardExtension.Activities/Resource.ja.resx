@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ApplyDescription" xml:space="preserve">
-    <value>入力設定を適用するウィンドウを指定します。(Apply)</value>
+    <value>ウィンドウに入力設定を適用します。(Apply Input Settings)</value>
   </data>
   <data name="ApplyDisplayName" xml:space="preserve">
     <value>入力設定を適用</value>
@@ -148,10 +148,13 @@
     <value>ブロック(マウス入力)</value>
   </data>
   <data name="ConfigureDescription" xml:space="preserve">
-    <value>入力設定を適用アクティビティで指定されるウィンドウに対する入力設定を行います。(Configure)</value>
+    <value>ウィンドウに対する入力設定を行います。(Configure Input Settings)</value>
   </data>
   <data name="ConfigureDisplayName" xml:space="preserve">
     <value>入力設定を行う</value>
+  </data>
+  <data name="ConfigureKeyboardLayoutArgumentValidationError" xml:space="preserve">
+    <value>指定キーボードレイアウトに強制変更プロパティが True ですが、適用したいキーボードレイアウトプロパティ値が指定されていません。</value>
   </data>
   <data name="DisableInputMethodEditorDescription" xml:space="preserve">
     <value>IME を無効化するかどうかを指定します。True で無効化し、False で無効化しません。</value>
@@ -172,13 +175,13 @@
     <value>変換モード</value>
   </data>
   <data name="GetStateDescription" xml:space="preserve">
-    <value>指定のウィンドウに設定されているキーボードレイアウトとコンパートメント値を取得します。</value>
+    <value>ウィンドウに設定されているキーボードレイアウトとコンパートメント値を取得します。(Get Keyboard State)</value>
   </data>
   <data name="GetStateDisplayName" xml:space="preserve">
     <value>キーボードの状態を取得</value>
   </data>
   <data name="GetStateKeyboardLayoutDescription" xml:space="preserve">
-    <value>キーボードレイアウトを表す言語 ID を受け取ります。</value>
+    <value>キーボードレイアウトの言語 ID を受け取ります。</value>
   </data>
   <data name="GetStateKeyboardLayoutDisplayName" xml:space="preserve">
     <value>キーボードレイアウト</value>
@@ -196,7 +199,7 @@
     <value>ウィンドウハンドル</value>
   </data>
   <data name="InitializeDescription" xml:space="preserve">
-    <value>キーボード拡張機能アクティビティパッケージを初期化します。(Initialize)</value>
+    <value>キーボード拡張機能アクティビティパッケージを初期化します。(Initialize Keyboard Extension)</value>
   </data>
   <data name="InitializeDisplayName" xml:space="preserve">
     <value>キーボード拡張機能を初期化</value>
@@ -214,15 +217,54 @@
     <value>適用したいキーボードレイアウト</value>
   </data>
   <data name="RestoreDescription" xml:space="preserve">
-    <value>入力設定を適用アクティビティで指定されたウィンドウに対する入力設定を解除します。(Restore)</value>
+    <value>ウィンドウに適用した入力設定を解除します。(Restore Input Settings)</value>
   </data>
   <data name="RestoreDisplayName" xml:space="preserve">
     <value>入力設定を解除</value>
   </data>
   <data name="RestoreWindowHandleDescription" xml:space="preserve">
-    <value>元に戻すウィンドウのWin32ハンドルです。Window、Browser、そして UiElement も指定可能です。省略時はすべてのウィンドウを元に戻します。</value>
+    <value>入力設定を解除するウィンドウのWin32ハンドルです。Window、Browser、そして UiElement も指定可能です。省略時はすべてのウィンドウを元に戻します。</value>
   </data>
   <data name="RestoreWindowHandleDisplayName" xml:space="preserve">
+    <value>ウィンドウハンドル</value>
+  </data>
+  <data name="SetStateConversionModeDescription" xml:space="preserve">
+    <value>設定する変換モード コンパートメント値です。この値かキーボード OpenClose コンパートメント値のいずれかを指定してください。</value>
+  </data>
+  <data name="SetStateConversionModeDisplayName" xml:space="preserve">
+    <value>変換モード</value>
+  </data>
+  <data name="SetStateDescription" xml:space="preserve">
+    <value>ウィンドウにコンパートメント値を設定します。(Set Keyboard State)</value>
+  </data>
+  <data name="SetStateDisplayName" xml:space="preserve">
+    <value>キーボードの状態を設定</value>
+  </data>
+  <data name="SetStateInputArgumentValidationError" xml:space="preserve">
+    <value>キーボード OpenClose と変換モードは同時に指定できません。</value>
+  </data>
+  <data name="SetStateKeyboardOpenCloseDescription" xml:space="preserve">
+    <value>設定するキーボード OpenClose コンパートメント値です。この値か変換モードコンパートメント値のいずれかを指定してください。</value>
+  </data>
+  <data name="SetStateKeyboardOpenCloseDisplayName" xml:space="preserve">
+    <value>キーボード OpenClose</value>
+  </data>
+  <data name="SetStatePreviousConversionModeDescription" xml:space="preserve">
+    <value>設定前の変換モード コンパートメント値を受け取ります。</value>
+  </data>
+  <data name="SetStatePreviousConversionModeDisplayName" xml:space="preserve">
+    <value>設定前の変換モード</value>
+  </data>
+  <data name="SetStatePreviousKeyboardOpenCloseDescription" xml:space="preserve">
+    <value>設定前のキーボード OpenClose コンパートメント値を受け取ります。</value>
+  </data>
+  <data name="SetStatePreviousKeyboardOpenCloseDisplayName" xml:space="preserve">
+    <value>設定前のキーボード OpenClose</value>
+  </data>
+  <data name="SetStateWindowHandleDescription" xml:space="preserve">
+    <value>キーボードの状態を設定するウィンドウの Win32 ハンドルです。Window、Browser、そして UiElement も指定可能です。</value>
+  </data>
+  <data name="SetStateWindowHandleDisplayName" xml:space="preserve">
     <value>ウィンドウハンドル</value>
   </data>
   <data name="ToggleSequenceDescription" xml:space="preserve">
@@ -232,9 +274,12 @@
     <value>トグルシーケンス</value>
   </data>
   <data name="UninitializeDescription" xml:space="preserve">
-    <value>キーボード拡張機能アクティビティパッケージを終了化します。(Uninitialize)</value>
+    <value>キーボード拡張機能アクティビティパッケージを終了化します。(Uninitialize Keyboard Extension)</value>
   </data>
   <data name="UninitializeDisplayName" xml:space="preserve">
     <value>キーボード拡張機能を終了化</value>
+  </data>
+  <data name="WindowHandleArgumentValidationError" xml:space="preserve">
+    <value>ウィンドウハンドルに null 値は指定できません。</value>
   </data>
 </root>

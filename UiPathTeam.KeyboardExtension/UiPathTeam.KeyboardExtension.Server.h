@@ -46,7 +46,7 @@ namespace UiPathTeam
             void StopAgent(HWND);
             DWORD GetFlags(HWND);
             DWORD SetFlags(HWND, DWORD);
-            DWORD GetState(HWND);
+            DWORD SetState(HWND, DWORD, DWORD);
             void NotifyAgents(WPARAM = 0, LPARAM = 0);
             void InstallKeybdHook();
             void InstallMouseHook();

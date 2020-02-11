@@ -61,7 +61,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Designates a window to apply the input settings to. に類似しているローカライズされた文字列を検索します。
+        ///   Applies the input settings to the designated window. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ApplyDescription {
             get {
@@ -79,7 +79,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Receives the result, which is true on success and is false on failure. に類似しているローカライズされた文字列を検索します。
+        ///   Receives the result. True on success, False otherwise. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ApplyResultDescription {
             get {
@@ -151,7 +151,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Configures the input settings for the windows designated by the Apply activity. に類似しているローカライズされた文字列を検索します。
+        ///   Configures the input settings for the windows designated by the Apply Input Settings activity. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ConfigureDescription {
             get {
@@ -169,7 +169,16 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Specifies whether to disable Input Method Editor or not. True to disable. False not to. に類似しているローカライズされた文字列を検索します。
+        ///   Preferred Keyboard Layout is not set while Force Keyboard Layout is set to True. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ConfigureKeyboardLayoutArgumentValidationError {
+            get {
+                return ResourceManager.GetString("ConfigureKeyboardLayoutArgumentValidationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Specifies whether to forcibly turn off Input Method Editor or not. True to turn off. False not to. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string DisableInputMethodEditorDescription {
             get {
@@ -205,7 +214,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Receives the ConversionMode compartment value. に類似しているローカライズされた文字列を検索します。
+        ///   Receives the Conversion Mode compartment value. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GetStateConversionModeDescription {
             get {
@@ -214,7 +223,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   ConversionMode に類似しているローカライズされた文字列を検索します。
+        ///   Conversion Mode に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GetStateConversionModeDisplayName {
             get {
@@ -223,7 +232,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Retrieves the keyboard layout and the compartment values set in the designated window. に類似しているローカライズされた文字列を検索します。
+        ///   Gets the keyboard layout and the compartment values set in the designated window. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GetStateDescription {
             get {
@@ -241,7 +250,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Receives the language identifier of the keyboard layout. に類似しているローカライズされた文字列を検索します。
+        ///   Receives the language ID of the keyboard layout. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GetStateKeyboardLayoutDescription {
             get {
@@ -259,7 +268,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Receives the KeyboardOpenClose compartment value. True when IME is turned on. Otherwise, False. に類似しているローカライズされた文字列を検索します。
+        ///   Receives the Keyboard OpenClose compartment value. True when IME is turned on. False otherwise. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GetStateKeyboardOpenCloseDescription {
             get {
@@ -268,7 +277,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   KeyboardOpenClose に類似しているローカライズされた文字列を検索します。
+        ///   Keyboard OpenClose に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GetStateKeyboardOpenCloseDisplayName {
             get {
@@ -331,7 +340,7 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
-        ///   Language ID of the preferred keyboard layout to be set if the flag is set. に類似しているローカライズされた文字列を検索します。
+        ///   Language ID of the preferred keyboard layout to be set if the Force Keyboard Layout property is set to True. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string PreferredKeyboardLayoutDescription {
             get {
@@ -385,6 +394,123 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         }
         
         /// <summary>
+        ///   Conversion Mode compartment value to set. Specify either this or the Keyboard OpenClose compartment value. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateConversionModeDescription {
+            get {
+                return ResourceManager.GetString("SetStateConversionModeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Conversion Mode に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateConversionModeDisplayName {
+            get {
+                return ResourceManager.GetString("SetStateConversionModeDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sets one of compartment values of the keyboard to the designated window.  に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateDescription {
+            get {
+                return ResourceManager.GetString("SetStateDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Set Keyboard State に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateDisplayName {
+            get {
+                return ResourceManager.GetString("SetStateDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Both Keyboard OpenClose and Conversion Mode cannot be specified at the same time. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateInputArgumentValidationError {
+            get {
+                return ResourceManager.GetString("SetStateInputArgumentValidationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Keyboard OpenClose compartment value to set. Specify either this or the Conversion Mode compartment value. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateKeyboardOpenCloseDescription {
+            get {
+                return ResourceManager.GetString("SetStateKeyboardOpenCloseDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Keyboard OpenClose に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateKeyboardOpenCloseDisplayName {
+            get {
+                return ResourceManager.GetString("SetStateKeyboardOpenCloseDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Receives the Conversion Mode compartment value previously set. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStatePreviousConversionModeDescription {
+            get {
+                return ResourceManager.GetString("SetStatePreviousConversionModeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Previous Conversion Mode に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStatePreviousConversionModeDisplayName {
+            get {
+                return ResourceManager.GetString("SetStatePreviousConversionModeDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Receives the Keyboard OpenClose compartment value previously set. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStatePreviousKeyboardOpenCloseDescription {
+            get {
+                return ResourceManager.GetString("SetStatePreviousKeyboardOpenCloseDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Previous Keyboard OpenClose に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStatePreviousKeyboardOpenCloseDisplayName {
+            get {
+                return ResourceManager.GetString("SetStatePreviousKeyboardOpenCloseDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Win32 Handle of the target window. Window, Browser, and UiElement are also acceptable. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateWindowHandleDescription {
+            get {
+                return ResourceManager.GetString("SetStateWindowHandleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Window Handle に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetStateWindowHandleDisplayName {
+            get {
+                return ResourceManager.GetString("SetStateWindowHandleDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Specifies the key combination to toggle on/off state of the input settings. Virtual key names are accepted. Plus sign combines keys. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ToggleSequenceDescription {
@@ -417,6 +543,15 @@ namespace UiPathTeam.KeyboardExtension.Activities {
         internal static string UninitializeDisplayName {
             get {
                 return ResourceManager.GetString("UninitializeDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Null value cannot be specified to Window Handle (Window, Browser, or UiElement). に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string WindowHandleArgumentValidationError {
+            get {
+                return ResourceManager.GetString("WindowHandleArgumentValidationError", resourceCulture);
             }
         }
     }

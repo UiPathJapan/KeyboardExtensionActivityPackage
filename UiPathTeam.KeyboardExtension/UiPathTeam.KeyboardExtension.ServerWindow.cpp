@@ -129,10 +129,20 @@ LRESULT CALLBACK Server::WindowProc(
             }
             DBGPUT(L"WM_APP_SET_KBD_LAYOUT: Ended. return=%04lx", lRet);
             return lRet;
-        case WM_APP_GET_CURRENT_STATE:
-            DBGPUT(L"WM_APP_GET_CURRENT_STATE: Started.");
-            lRet = pThis->GetState(reinterpret_cast<HWND>(wParam));
-            DBGPUT(L"WM_APP_GET_CURRENT_STATE: Ended. return=%08lx", lRet);
+        case WM_APP_GET_STATE:
+            DBGPUT(L"WM_APP_GET_STATE: Started.");
+            lRet = pThis->SetState(reinterpret_cast<HWND>(wParam), 0, 0);
+            DBGPUT(L"WM_APP_GET_STATE: Ended. return=%08lx", lRet);
+            return lRet;
+        case WM_APP_SET_OPENCLOSE:
+            DBGPUT(L"WM_APP_SET_OPENCLOSE: Started.");
+            lRet = pThis->SetState(reinterpret_cast<HWND>(wParam), static_cast<DWORD>(lParam), OPENCLOSE);
+            DBGPUT(L"WM_APP_SET_OPENCLOSE: Ended. return=%08lx", lRet);
+            return lRet;
+        case WM_APP_SET_CONVERSION:
+            DBGPUT(L"WM_APP_SET_CONVERSION: Started.");
+            lRet = pThis->SetState(reinterpret_cast<HWND>(wParam), static_cast<DWORD>(lParam), CONVERSION);
+            DBGPUT(L"WM_APP_SET_CONVERSION: Ended. return=%08lx", lRet);
             return lRet;
         default:
             break;
@@ -303,10 +313,10 @@ DWORD Server::SetFlags(HWND hwnd, DWORD dwFlags)
 }
 
 
-DWORD Server::GetState(HWND hwnd)
+DWORD Server::SetState(HWND hwnd, DWORD dwState, DWORD dwMask)
 {
     DBGFNC(L"UiPathTeam::KeyboardExtension::Server::GetState");
-    DBGPUT(L"Started. hwnd=%p", hwnd);
+    DBGPUT(L"Started. hwnd=%p state=%08lx mask=%08lx", hwnd, dwState, dwMask);
     DWORD dwProcessId = 0;
     DWORD dwThreadId = GetWindowThreadProcessId(hwnd, &dwProcessId);
     std::map<DWORD, AgentHook*>::iterator iter = m_AgentMap.find(dwThreadId);
@@ -329,13 +339,21 @@ DWORD Server::GetState(HWND hwnd)
     }
     else
     {
-        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_GETSTATE, 0, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
+        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_GET_STATE, 0, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
     }
     AgentIpcPtr& ptr = iter->second->m_pIpc;
     DWORD dwRet
-        = ((static_cast<DWORD>(ptr->m_LangId) & 0xffff) << 0)
-        | ((static_cast<DWORD>(ptr->m_InputModeConversion) & 0x7fff) << 16)
-        | ((static_cast<DWORD>(ptr->m_KeyboardOpenClose) & 1) << 31);
+        = ((static_cast<DWORD>(ptr->m_LangId) & 0xffff) << 16)
+        | ((static_cast<DWORD>(ptr->m_KeyboardOpenClose) & 1) << 15)
+        | ((static_cast<DWORD>(ptr->m_InputModeConversion) & 0x7fff) << 0);
+    if ((dwMask & OPENCLOSE) != 0)
+    {
+        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_SET_OPENCLOSE, dwState, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
+    }
+    else if ((dwMask & CONVERSION) != 0)
+    {
+        SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_SET_CONVERSION, dwState, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
+    }
     if (!hooked)
     {
         SendMessageTimeoutW(hwnd, m_pDesktopIpc->m_WM_AGENT_WAKEUP, AGENT_UNINITIALIZE, 0, SMTO_NOTIMEOUTIFNOTHUNG, WAKEUP_TIMEOUT, NULL);
