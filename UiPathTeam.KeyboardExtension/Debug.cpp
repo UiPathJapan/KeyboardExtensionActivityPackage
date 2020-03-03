@@ -30,7 +30,7 @@ void Debug::VPut(PCWSTR pszFormat, va_list argList)
         size_t size = len1 + len2 + 2;
         PWCHAR pBuf;
         WCHAR buf[512];
-        if (size <= sizeof(buf))
+        if (size <= _countof(buf))
         {
             pBuf = buf;
         }
