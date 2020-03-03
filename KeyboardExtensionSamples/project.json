@@ -5,7 +5,7 @@
   "dependencies": {
     "UiPath.System.Activities": "[19.10.1]",
     "UiPath.UIAutomation.Activities": "[19.11.2]",
-    "UiPathTeam.KeyboardExtension.Activities": "[2.2.1]"
+    "UiPathTeam.KeyboardExtension.Activities": "[2.2.3]"
   },
   "webServices": [],
   "schemaVersion": "4.0",
